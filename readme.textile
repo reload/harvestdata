@@ -1,6 +1,6 @@
 h1. HarvestData
 
-HarvestData is a console application which fetches data and stores it from Harvest. 
+HarvestData is a console application which fetches data Harvest and stores it in a file in a format prepared for Custom Widgets in Geckoboard. 
 
 HarvestData currently supports the time tracking system "Harvest":http://harvestapp.com.
 

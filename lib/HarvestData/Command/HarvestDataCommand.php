@@ -18,7 +18,7 @@ abstract class HarvestDataCommand extends \Symfony\Component\Console\Command\Com
 	private $harvestTasks = null;
 
 	protected function configure() {
-		$this->addOption('harvest-project', 'p', InputOption::VALUE_OPTIONAL, 'One or more Harvest projects (id, name or code) separated by , (comma). Use "all" for all projects.', NULL);
+		$this->addOption('harvest-project', 'p', InputOption::VALUE_OPTIONAL, 'One or more Harvest projects (id, name or code) separated by , (comma). Use "all" for all projects or "active" for the active ones.', NULL);
 		$this->addOption('config', NULL, InputOption::VALUE_OPTIONAL, 'Path to the configuration file', 'config.yml');
 	}
 
