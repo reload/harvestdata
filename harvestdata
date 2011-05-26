@@ -1,0 +1,6 @@
+#!/Applications/MAMP/bin/php5.3/bin/php
+
+<?php
+$abspath = realpath(__DIR__);
+chdir($abspath);
+include(__DIR__.'/harvestdata.php');

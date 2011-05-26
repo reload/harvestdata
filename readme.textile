@@ -1,0 +1,25 @@
+h1. HarvestData
+
+HarvestData is a console application which fetches data and stores it from Harvest. 
+
+HarvestData currently supports the time tracking system "Harvest":http://harvestapp.com.
+
+h2. Installation
+
+Clone the repository
+CURL and PHP 5.3 must be installed (5.2 won't cut it!).
+You might need to change the #! path in the "HarvestData" file. Use "which php" in order to find the proper path.
+
+h2. Configuration
+
+HarvestData needs to know where and how to access the systems involved. This configuration is handled by a config.yml file. Copy the provided config.sample.yml and update it with account information. If your configuration file is not located in the root directory you can specify the path to the config file using the <code>--config</code> option.
+
+h2. Usage
+
+HarvestData currently supports one use case: 
+
+# *Fetch Today*: Fetch entries in Harvest
+
+HarvestData works in the context of one or more Harvest projects identified through their id, full name or code. Projects can be specified in the configuration or using the <code>--harvest-project</code> option. "all", "active" or "project-name" can be used.
+
+Run <code>./HarvestData</code> from the command line to show all available commands.

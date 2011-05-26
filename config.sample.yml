@@ -1,0 +1,7 @@
+harvest:
+  account: my-company
+  username: bugyield@mycompany.com
+  password: 1234
+  ssl: true
+  projects: "alias,name,id,all,active"
+  daysback: 0
