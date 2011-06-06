@@ -1,4 +1,4 @@
-#!/Applications/MAMP/bin/php5.3/bin/php
+#!/usr/bin/env php
 
 <?php
 $abspath = realpath(__DIR__);
