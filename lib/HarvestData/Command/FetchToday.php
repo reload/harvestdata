@@ -77,7 +77,7 @@ class FetchToday extends HarvestDataCommand {
   	$notes = strlen($entry->get('notes')) > 0 ? $entry->get('notes') : "[no notes]";  
   
       $data['item'][] = array('text' => 
-      '<span style="font-size: medium;">'.self::getUserNameById($entry->get('user-id')).':</span><br/><i>"'.$notes.'"</i><br/><span style="font-size: small;">'.self::getProjectNameById($projects,$entry->get('project-id')).' - '.self::getTaskNameById($entry->get("task-id")).', '.$entry->get('hours').' timer</span>',
+      '<span class="t-size-x44 t-muted">'.self::getProjectNameById($projects,$entry->get('project-id')).':</span><br/><span class="t-size-x24">"'.$notes.'"</span><br/><span class="t-size-x18">'.self::getUserNameById($entry->get('user-id')).' - '.self::getTaskNameById($entry->get("task-id")).', '.$entry->get('hours').' timer</span>',
       'type' => 0);
   }
     
