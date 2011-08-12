@@ -196,7 +196,7 @@ abstract class HarvestDataCommand extends \Symfony\Component\Console\Command\Com
 	 * @param Integer $from_date Date in YYYYMMDD format
 	 * @param Integer $to_date Date in YYYYMMDD format  
 	 */
-	protected function getTicketEntries($projects, $ignore_locked = true, $from_date = null, $to_date = null) {
+	protected function getTicketEntries($projects, $ignore_locked = true, $from_date = null, $to_date = null, $user_id = null, $billable = null) {
 		//Setup Harvest API access
 		$harvest = $this->getHarvestApi();
 		 
@@ -214,7 +214,7 @@ abstract class HarvestDataCommand extends \Symfony\Component\Console\Command\Com
 		
 			$range = new \Harvest_Range($from_date, $to_date);
 						
-			$result = $harvest->getProjectEntries($project->get('id'), $range);
+			$result = $harvest->getProjectEntries($project->get('id'), $range, $user_id, $billable);
 			if ($result->isSuccess()) {
 				foreach ($result->get('data') as $entry) {
 						$ticketEntries[] = $entry;
