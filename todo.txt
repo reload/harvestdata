@@ -1,0 +1,10 @@
+
+- Fetch all billable hours per user in timeframe
+
+
+
+
+Graphs:
+- Billable hours today (speedometer)
+- Billable hours this month vs. goal
+- Billable vs. unbillable
