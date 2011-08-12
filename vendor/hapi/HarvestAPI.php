@@ -1713,12 +1713,16 @@
      * @param int $user_id User identifier optional
      * @return Harvest_Result
      */
-    public function getProjectEntries( $project_id, Harvest_Range $range, $user_id = null ) 
+    public function getProjectEntries( $project_id, Harvest_Range $range, $user_id = null, $billable = null ) 
     {
         $url = "projects/" . $project_id . "/entries?from=" . $range->from() . '&to=' . $range->to();
-        if( ! is_null( $user_id ) ) {
+        if( !is_null( $user_id ) ) {
             $url .= "&user_id=" . $user_id;
         }
+        if( !is_null( $billable ) ) {
+            $url .= "&billable=" . $billable;
+        }
+        
         return $this->performGET( $url, true );
     }
 
