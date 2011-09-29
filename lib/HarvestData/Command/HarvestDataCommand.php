@@ -19,6 +19,10 @@ abstract class HarvestDataCommand extends \Symfony\Component\Console\Command\Com
 
 	protected function configure() {
 		$this->addOption('harvest-project', 'p', InputOption::VALUE_OPTIONAL, 'One or more Harvest projects (id, name or code) separated by , (comma). Use "all" for all projects or "active" for the active ones.', NULL);
+		$this->addOption('date-to', 'dt', InputOption::VALUE_OPTIONAL, 'Date from in YYYYMMDD format. Date is inclusive. Today is default.', NULL);
+		$this->addOption('date-from', 'df', InputOption::VALUE_OPTIONAL, 'Date from in YYYYMMDD format. Date is inclusive. DaysBack from config is default.', NULL);
+		$this->addOption('days-back', 'db', InputOption::VALUE_OPTIONAL, 'Overwrite the config setting. Calculate the from-date by X daysback subtracted from to-date.', NULL);
+		$this->addOption('output-file', 'f', InputOption::VALUE_OPTIONAL, 'Output filename.', NULL);		
 		$this->addOption('config', NULL, InputOption::VALUE_OPTIONAL, 'Path to the configuration file', 'config.yml');
 	}
 
@@ -44,9 +48,65 @@ abstract class HarvestDataCommand extends \Symfony\Component\Console\Command\Com
 	 * Number of days back compared to today to look for harvestentries
 	 * @return Integer Number of days
 	 */
-	protected function getHarvestDaysBack() {
-		return intval($this->harvestConfig['daysback']);
+	protected function getHarvestDaysBack(InputInterface $input) {
+	  $db = $input->getOption('days-back');
+
+	  if(isset($db) && is_numeric($db) && $db >= 0) {
+	    return $db;
+	  }
+	  else {
+	    return intval($this->harvestConfig['daysback']);
+	  }
 	}	
+
+	/**
+	 * The from-date in YYYYMMDD format
+	 * @return Integer Fromdate
+	 */
+	protected function getHarvestFromDate(InputInterface $input, $returnFormat = "Ymd", $fallback = null) {
+	  $from = $input->getOption('date-from');
+	  if(empty($from)) {
+	    if(is_null($fallback)) {
+	      $from = date($returnFormat,strtotime($this->getHarvestToDate($input))-(86400*$this->getHarvestDaysBack($input)));
+	    }
+	    else
+	    {
+	      $from = $fallback;
+	    }
+	  }
+	  
+	  if(!is_numeric($from)) { // TODO: This will fail if a date like "YYYY-MM-DD" is provided... Should be refactored as well.
+	    // we're guessing is something like "today" or"yesterday"
+	    $from = date($returnFormat,strtotime($from));
+	  }
+		return $from;
+	}
+
+	/**
+	 * The to-date in YYYYMMDD format
+	 * @return Integer Fromdate
+	 * @TODO add formatter parameter
+	 */
+	protected function getHarvestToDate(InputInterface $input, $returnFormat = "Ymd", $fallback = null) {
+	  $to = $input->getOption('date-to');
+	  
+	  if(empty($to)) {
+	    if(is_null($fallback)) {
+	      $to = "today";
+	    }
+	    else
+	    {
+	      $to = $fallback;
+	    }
+	  }	  
+	  
+	  if(!is_numeric($to)) { // TODO: This will fail if a date like "YYYY-MM-DD" is provided... Should be refactored as well.
+	    // we're guessing is something like "today" or"yesterday"
+	    $to = date($returnFormat,strtotime($to));
+	  }
+		return $to;
+	}
+
 
 	/**
 	 * Loads the configuration from a yaml file

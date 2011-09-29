@@ -9,13 +9,13 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Output\StreamOutput;
 use Symfony\Component\Console\Input\InputInterface;
 
-class FetchToday extends HarvestDataCommand {
+class FetchEntries extends HarvestDataCommand {
 
 	protected function configure() {
 		$this
-		->setName('HarvestData:FetchToday')
-		->setAliases(array('today', 'FetchToday'))
-		->setDescription('Fetch and store data from Harvest');
+		->setName('HarvestData:FetchEntries')
+		->setAliases(array('entries', 'FetchEntries'))
+		->setDescription('Fetch and store latest harvest entries from period - ^What we are doing right now^');
 		parent::configure();
 	}
 
@@ -23,16 +23,20 @@ class FetchToday extends HarvestDataCommand {
 		$this->loadConfig($input);
 
 	  $ignore_locked  = false;
-	  $from_date      = date("Ymd",time()-(86400*$this->getHarvestDaysBack()));
-	  $to_date        = date("Ymd");
-    $updated_since  = date("Y-m-d 0:00",time()-(86400*$this->getHarvestDaysBack()));
+	  $from_date      = $this->getHarvestFromDate($input, "Ymd", "today");
+	  $to_date        = $this->getHarvestToDate($input, "Ymd", "today");
+    $updated_since  = null; //date("Y-m-d 0:00",time()-(86400*$this->getHarvestDaysBack()));
+
+    if(!$outputFilename = $input->getOption("output-file")) {
+      $outputFilename = 'FetchEntries-'.$from_date.'-'.$to_date.'.xml';
+    }
 
 		//Setup Harvest API access
 		$harvest = $this->getHarvestApi();
 
-    $output->writeln('FetchToday executed: ' . date('Ymd H:i:s'));
+    $output->writeln('FetchEntries executed: ' . date('Ymd H:i:s'));
 		$output->writeln('Verifying projects in Harvest');
-		$output->writeln('Updated since: ' . $updated_since);
+		$output->writeln('Output filename: ' . $outputFilename);
 
 		$projects = $this->getProjects($this->getProjectIds($input), $updated_since);
 		if (sizeof($projects) == 0) {
@@ -85,9 +89,9 @@ class FetchToday extends HarvestDataCommand {
     
     // let's write the response to a file
     
-     $outputFile = new StreamOutput(fopen('FetchToday.xml', 'w', false));
+     $outputFile = new StreamOutput(fopen('data/'.$outputFilename, 'w', false));
      $outputFile->doWrite($response, false);
 
-		$output->writeln("FetchToday completed -> FetchToday.xml updated");
+		$output->writeln("FetchEntries completed -> ".$outputFilename." updated");
 	}
 }

@@ -23,16 +23,22 @@ class FetchBillable extends HarvestDataCommand {
 		$this->loadConfig($input);
 
 	  $ignore_locked  = false;
-	  $from_date      = date("Ymd",time()-(86400*1));
-	  $to_date        = $from_date;
-    $updated_since  = date("Y-m-d 0:00",time()-(86400*1));
+	  $from_date      = $this->getHarvestFromDate($input, "Ymd","yesterday");
+	  $to_date        = $this->getHarvestToDate($input, "Ymd", "yesterday");
+    $updated_since  = null;  // NULL meeans all projects (and is thereby slow), but it doesnt seem to work correctly if I set the date otherwise
+                             // Ahh: http://forum.getharvest.com/forums/api-and-developer-chat/topics/announcement-greater-availability-of-updated_since-filtering-in-api
+//    $updated_since  = urlencode($this->getHarvestFromDate($input, "Y-m-d 00:00"));
+
+    if(!$outputFilename = $input->getOption("output-file")) {
+      $outputFilename = 'FetchBillable-'.$from_date.'-'.$to_date.'.xml';
+    }
 
 		//Setup Harvest API access
 		$harvest = $this->getHarvestApi();
 
     $output->writeln('FetchBillable executed: ' . date('Ymd H:i:s'));
 		$output->writeln('Verifying projects in Harvest');
-		$output->writeln('Updated since: ' . $updated_since);
+		$output->writeln('Output filename: ' . $outputFilename);
 
 		$projects = $this->getProjects($this->getProjectIds($input), $updated_since);
 		if (sizeof($projects) == 0) {
@@ -79,11 +85,11 @@ class FetchBillable extends HarvestDataCommand {
     
     // let's write the response to a file
     
-     $outputFile = new StreamOutput(fopen('FetchBillableYesterday.xml', 'w', false));
+     $outputFile = new StreamOutput(fopen('data/'.$outputFilename, 'w', false));
      $outputFile->doWrite($response, false);
 
 
 
-		$output->writeln("FetchBillable completed -> FetchBillableYesterday.xml updated");
+		$output->writeln("FetchBillable completed -> ".$outputFilename." updated");
 	}
 }

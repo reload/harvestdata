@@ -16,10 +16,15 @@ HarvestData needs to know where and how to access the systems involved. This con
 
 h2. Usage
 
-HarvestData currently supports one use case: 
-
-# *Fetch Today*: Fetch entries in Harvest
-
 HarvestData works in the context of one or more Harvest projects identified through their id, full name or code. Projects can be specified in the configuration or using the <code>--harvest-project</code> option. "all", "active" or "project-name" can be used.
+Also a time period can be specified using the <code>--date-from</code> and/or <code>--date-to</code> options - use a date in the YYYYMMDD format, or use "yesterday" or similar PHP-parsable dates.
+You can also use the <code>--days-back</code> option, requiring an integer.
+If no dates are set, the system will use todays date and X days back as defined in the config file.
 
 Run <code>./HarvestData</code> from the command line to show all available commands.
+
+HarvestData currently supports two use cases: 
+
+# *Fetch Entries*: Fetch entries in Harvest
+# *Fetch Billable*: Fetch number of billable hours from Harvest in a specified period
+
