@@ -21,5 +21,9 @@ spl_autoload_register( array('HarvestAPI', 'autoload') );
 require_once 'vendor/Geckoboard/GeckoResponse.php';
 spl_autoload_register( array('GeckoResponse', 'autoload') );
 
+//Load Geckoboard chart class
+require_once 'vendor/Geckoboard/GeckoChart.php';
+spl_autoload_register( array('GeckoChart', 'autoload') );
+
 $app = new HarvestData\HarvestData();
 $app->run();
