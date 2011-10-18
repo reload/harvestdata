@@ -1,10 +1,13 @@
+Next release:
 
+
+Graphs/features:
 - Fetch all billable hours per user in timeframe
-
-
-
-
-Graphs:
-- Billable hours today (speedometer)
 - Billable hours this month vs. goal
+
+Done
+-------------
+
+Version 0.3:
+- Billable hours today (speedometer)
 - Billable vs. unbillable
