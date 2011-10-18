@@ -16,6 +16,11 @@ class FetchEntries extends HarvestDataCommand {
 		->setName('HarvestData:FetchEntries')
 		->setAliases(array('entries', 'FetchEntries'))
 		->setDescription('Fetch and store latest harvest entries from period - ^What we are doing right now^');
+
+    // these parameters are not accepted, indicate that by assigning empty arrays.
+	  $this->setChartTypes(array());
+	  $this->setChartPeriods(array());		
+		
 		parent::configure();
 	}
 
@@ -25,7 +30,9 @@ class FetchEntries extends HarvestDataCommand {
 	  $ignore_locked  = false;
 	  $from_date      = $this->getHarvestFromDate($input, "Ymd", "today");
 	  $to_date        = $this->getHarvestToDate($input, "Ymd", "today");
-    $updated_since  = null; //date("Y-m-d 0:00",time()-(86400*$this->getHarvestDaysBack()));
+    $chartType      = $this->getChartType($input,null);
+    $chartPeriod    = $this->getChartPeriod($input,null);
+    
 
     if(!$outputFilename = $input->getOption("output-file")) {
       $outputFilename = 'FetchEntries-'.$from_date.'-'.$to_date.'.xml';
@@ -45,6 +52,7 @@ class FetchEntries extends HarvestDataCommand {
 			return;
 		}
 
+    // TODO: This one loops trough projects (which is slow) instead of users. Refactor this as done in FetchData.php
 		foreach ($projects as $Harvest_Project) {
 		  $output->writeln(sprintf('Working with project: %s', $Harvest_Project->get("name")));
 		}
@@ -71,6 +79,8 @@ class FetchEntries extends HarvestDataCommand {
     
     // get top 30
     $sortedEntries = array_slice($sortedEntries, 0, 30, true);
+
+    // TODO: Refactor and move to GeckoChart.php
 
   // prepare the response!
   $geckoresponse = new \GeckoResponse();

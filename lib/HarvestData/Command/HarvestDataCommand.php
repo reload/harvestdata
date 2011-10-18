@@ -16,13 +16,17 @@ abstract class HarvestDataCommand extends \Symfony\Component\Console\Command\Com
 	/* singletons for caching data */
 	private $harvestUsers = null;
 	private $harvestTasks = null;
+	private $chartTypes   = null;
+	private $chartPeriods = null;
 
 	protected function configure() {
 		$this->addOption('harvest-project', 'p', InputOption::VALUE_OPTIONAL, 'One or more Harvest projects (id, name or code) separated by , (comma). Use "all" for all projects or "active" for the active ones.', NULL);
 		$this->addOption('date-to', 'dt', InputOption::VALUE_OPTIONAL, 'Date from in YYYYMMDD format. Date is inclusive. Today is default.', NULL);
 		$this->addOption('date-from', 'df', InputOption::VALUE_OPTIONAL, 'Date from in YYYYMMDD format. Date is inclusive. DaysBack from config is default.', NULL);
-		$this->addOption('days-back', 'db', InputOption::VALUE_OPTIONAL, 'Overwrite the config setting. Calculate the from-date by X daysback subtracted from to-date.', NULL);
-		$this->addOption('output-file', 'f', InputOption::VALUE_OPTIONAL, 'Output filename.', NULL);		
+		$this->addOption('days-back', 'db', InputOption::VALUE_OPTIONAL, 'Overwrite the config setting. Calculate the from-date by X daysback subtracted from to-date. DEPRECATED.', NULL);
+		$this->addOption('output-file', 'f', InputOption::VALUE_OPTIONAL, 'Output filename. Will default to a datetime-stamp.', NULL);
+		$this->addOption('chart-type', 'ct', InputOption::VALUE_OPTIONAL, 'Chart-type when outputting data. Only usable for FetchBillable and FetchData. See their descriptions for possible values.', NULL);
+		$this->addOption('chart-period', 'cp', InputOption::VALUE_OPTIONAL, 'Chart period when outputting data. Only usable for FetchBillable and FetchData. E.g.: day, week or month', NULL);
 		$this->addOption('config', NULL, InputOption::VALUE_OPTIONAL, 'Path to the configuration file', 'config.yml');
 	}
 
@@ -48,14 +52,19 @@ abstract class HarvestDataCommand extends \Symfony\Component\Console\Command\Com
 	 * Number of days back compared to today to look for harvestentries
 	 * @return Integer Number of days
 	 */
-	protected function getHarvestDaysBack(InputInterface $input) {
+	protected function getHarvestDaysBack(InputInterface $input, $fallback = null) {
 	  $db = $input->getOption('days-back');
 
 	  if(isset($db) && is_numeric($db) && $db >= 0) {
 	    return $db;
 	  }
 	  else {
-	    return intval($this->harvestConfig['daysback']);
+	    if(is_null($fallback)) {
+        return intval($this->harvestConfig['daysback']);	      
+	    }
+	    else {
+	      return $fallback;
+	    }
 	  }
 	}	
 
@@ -65,6 +74,12 @@ abstract class HarvestDataCommand extends \Symfony\Component\Console\Command\Com
 	 */
 	protected function getHarvestFromDate(InputInterface $input, $returnFormat = "Ymd", $fallback = null) {
 	  $from = $input->getOption('date-from');
+	  $db   = $input->getOption('days-back');
+	  
+	  if(!empty($from) && !empty($db)) {
+	    throw new \Exception('You cannot specify "date-from" and "days-back" at the same time');
+	  }
+	  
 	  if(empty($from)) {
 	    if(is_null($fallback)) {
 	      $from = date($returnFormat,strtotime($this->getHarvestToDate($input))-(86400*$this->getHarvestDaysBack($input)));
@@ -106,6 +121,60 @@ abstract class HarvestDataCommand extends \Symfony\Component\Console\Command\Com
 	  }
 		return $to;
 	}
+  
+  protected function setChartTypes($data) {
+    if(!is_array($data)) {
+      throw new \Exception("Data must be an array in setChartTypes");
+    }
+    $this->chartTypes = $data;
+  }
+
+  protected function setChartPeriods($data) {
+    if(!is_array($data)) {
+      throw new \Exception("Data must be an array in setChartPeriods");
+    }
+    $this->chartPeriods = $data;
+  }
+  
+  protected function getChartType(InputInterface $input, $fallback = "stackedcolumn") {
+    $chart = $input->getOption('chart-type');
+
+    if(empty($chart)) {
+      $chart = $fallback;
+    }
+
+    if(!in_array($chart,$this->chartTypes) && !is_null($chart)) {
+      if(empty($this->chartTypes)) {
+        throw new \Exception(sprintf('Chart-type "%s" is not a valid value for this command, as it does not accept this parameter. Please remove it.', $chart)); 
+      }
+      else {
+        throw new \Exception(sprintf('Chart-type "%s" is not a valid value for this command. Valid types are "%s"', $chart, implode(",",$this->chartTypes)));
+      }
+    }
+    else {
+     return $chart;
+    } 
+  }
+
+  protected function getChartPeriod(InputInterface $input, $fallback = "day") {
+    $$period = $input->getOption('chart-period');
+
+    if(empty($period)) {
+      $period = $fallback;
+    }
+
+    if(!in_array($period,$this->chartPeriods)  && !is_null($period)) {
+      if(empty($this->chartPeriods)) {
+        throw new \Exception(sprintf('Chart-period "%s" is not a valid value for this command, as it does not accept this parameter. Please remove it.', $period)); 
+      }
+      else {      
+        throw new \Exception(sprintf('Chart-period "%s" is not a valid value for this command. Valid periods are "%s"', $period, implode(",",$this->chartPeriods)));
+     }
+    }
+    else {
+     return $period;
+    } 
+  }
 
 
 	/**
@@ -120,7 +189,7 @@ abstract class HarvestDataCommand extends \Symfony\Component\Console\Command\Com
 			$config = Yaml::load($configFile);
 			$this->harvestConfig = $config['harvest'];
 		} else {
-			throw new Exception(sprintf('Missing configuration file %s', $configFile));
+			throw new \Exception(sprintf('Missing configuration file %s', $configFile));
 		}
 	}
 	
@@ -259,11 +328,9 @@ abstract class HarvestDataCommand extends \Symfony\Component\Console\Command\Com
 	protected function getTicketEntries($projects, $ignore_locked = true, $from_date = null, $to_date = null, $user_id = null, $billable = null) {
 		//Setup Harvest API access
 		$harvest = $this->getHarvestApi();
-		 
-		//Collect the ticket entries
-		$ticketEntries = array();
-		foreach($projects as $project) {
-		  
+		$project_count = count($projects);
+		$project_counter = 0;
+
 		 if(!is_numeric($from_date)) {
 		   $from_date = "19000101";
 		 }
@@ -272,22 +339,77 @@ abstract class HarvestDataCommand extends \Symfony\Component\Console\Command\Com
 		   $to_date = date('Ymd');
 		 }
 		
-			$range = new \Harvest_Range($from_date, $to_date);
-						
+		$range = new \Harvest_Range($from_date, $to_date);
+		 
+		//Collect the ticket entries
+		$ticketEntries = array();
+		foreach($projects as $project) {
+		  $project_counter++;
+		  //echo "[".$project_counter . "/" . $project_count . "]>";
+		  
 			$result = $harvest->getProjectEntries($project->get('id'), $range, $user_id, $billable);
 			if ($result->isSuccess()) {
 				foreach ($result->get('data') as $entry) {
+				    echo ".";
 						$ticketEntries[] = $entry;
 				}
 			}
-			else
-			{
-			  echo "Result was no success...";
+			else {
+			  echo "\nResult was no success...: ProjectID: " . $project->get('id') . " From: " . $from_date . " To: " . $to_date;
 			}
 		}
 
 		return $ticketEntries;
 	}
+	
+	/**
+	 * Return ticket entries from projects.
+	 *
+	 * @param array $projects An array of projects
+	 * @param boolean $ignore_locked Should we filter the closed/billed entries? We cannot update them...
+	 * @param Integer $from_date Date in YYYYMMDD format
+	 * @param Integer $to_date Date in YYYYMMDD format  
+	 */
+	protected function getEntriesByUser($user_id, $from_date = null, $to_date = null, $project_id = null, $billable = null) {
+		//Setup Harvest API access
+		$harvest = $this->getHarvestApi();
+
+		 if(!is_numeric($from_date)) {
+		   $from_date = "19000101";
+		 }
+		 
+		 if(!is_numeric($to_date)) {
+		   $to_date = date('Ymd');
+		 }
+		
+		$range = new \Harvest_Range($from_date, $to_date);
+		 
+		//Collect the ticket entries
+		$ticketEntries = array();
+	  
+		$result = $harvest->getUserEntries($user_id, $range, $project_id, $billable);
+		if ($result->isSuccess()) {
+		  
+		  if($entries = $result->get('data')) {
+		    if(is_array($entries) && !empty($entries)) {
+		      echo "\nFound entries for ". $this->getUserNameById($user_id);		      
+		    }
+		  }
+			foreach ($entries as $entry) {
+					$ticketEntries[] = $entry;
+			}
+			if($entryCount = count($ticketEntries)) {
+			  echo " (".$entryCount.")";  
+			}
+		}
+		else {
+		  echo "\nResult was no success...: UserId: " . $user_id . " From: " . $from_date . " To: " . $to_date;
+		}
+
+
+		return $ticketEntries;
+	}	
+	
   
 	/**
 	 * Look through the projects array and return a name
@@ -341,8 +463,111 @@ abstract class HarvestDataCommand extends \Symfony\Component\Console\Command\Com
     }
 
     return $taskname;
+  }
+  
+  public function getEntriesByUsers($from_date, $to_date, $billable = null, $project_id = null) {
+    $users = $this->getUsers();  
+    $ticketEntries = array();
     
+    if(is_array($users)) {
+      foreach ($users as $user_id => $Harvest_User) {
+        $entries = $this->getEntriesByUser($user_id, $from_date, $to_date, $project_id, $billable);
+        if(!empty($entries)) {
+          $ticketEntries[$user_id] = $entries;
+        }
+      }      
+    }
+
+    return $ticketEntries;
+  }
+  
+  public function fetchBillableHoursInPeriod($from_date, $to_date, $project_id = null) {
+    return $this->fetchHoursInPeriod($from_date, $to_date, "yes", $project_id);
+  }
+
+  public function fetchNonBillableHoursInPeriod($from_date, $to_date, $project_id = null) {
+    return $this->fetchHoursInPeriod($from_date, $to_date, "no", $project_id);
   }  
   
+  /**
+  * Return semi-formatted hours pr day in period
+  */
+  public function fetchHoursInPeriod($from_date, $to_date, $billable = null, $project_id = null) {
+    $ticketEntries = $this->getEntriesByUsers($from_date, $to_date, $billable, $project_id);
+
+    $totalHours = 0;
+    $sortedTicketEntries = array();
+    // sort the ticket entries by date 
+    foreach ($ticketEntries as $user_id => $data) {
+      foreach ($data as $key => $entry) {
+        $keyTime = $entry->get("spent-at");
+
+        if(!array_key_exists($keyTime,$sortedTicketEntries) && floatval($entry->get("hours")) > 0) {
+          $sortedTicketEntries[$keyTime] = 0;
+        }
+
+        // add hours to this date
+        if(floatval($entry->get("hours")) > 0) {
+          $sortedTicketEntries[$keyTime] += floatval($entry->get("hours"));
+          $totalHours += floatval($entry->get("hours"));          
+        }
+      }
+    }
     
+    ksort($sortedTicketEntries);
+    if($totalHours >= 0 && count($sortedTicketEntries) >= 0) {
+        $averageHoursPerDay = round($totalHours/count($sortedTicketEntries),2);      
+    }
+    else {
+      $averageHoursPerDay   = 0;
+    }
+    
+    $sortedTicketEntries["statistics"] = array("totalhours" => $totalHours, "average" => $averageHoursPerDay);
+    
+    return $sortedTicketEntries;
+  }
+  
+  // TODO: Refactor -- instead for this function refactor for usage with GeckoChart::formatValuesToKeys() 
+  public function formatHoursInPeriod($sortedTicketEntries,$chartPeriod) {
+    
+    $dateFormat = \GeckoChart::getChartPeriodAsDateFormat($chartPeriod);
+
+    $formattedTicketEntries = array();
+    // sort the ticket entries by date
+    foreach ($sortedTicketEntries as $date => $hours) {
+      if($date != "statistics") {
+        // update the timestamp unless it's the statistics key
+        $date = date($dateFormat,strtotime($date));
+      }
+      $formattedTicketEntries[$date] = $hours;
+    }
+
+    return $formattedTicketEntries;
+  }
+  
+  /**
+   * Fetch both billable and non-billable hours in the periode and return a multidimensional array ready for processing
+   */  
+  public function fetchAllHoursInPeriod($from_date, $to_date, $project_id = null) {
+    $billableEntries      = $this->fetchHoursInPeriod($from_date, $to_date, "yes", $project_id);
+    $nonBillableEntries   = $this->fetchHoursInPeriod($from_date, $to_date, "no", $project_id);
+
+    $totalHours             = 0;
+    $totalBillableHours     = 0;
+    $totalNonBillableHours  = 0;
+    
+    // lets get the dates
+    $dates = array_unique(array_merge(array_keys($billableEntries),array_keys($nonBillableEntries)));
+    sort($dates);
+    
+    $assembledEntries = array();
+    foreach ($dates as $date) {
+      $assembledEntries["billable"][$date]      = ($date == "statistics" ? $billableEntries[$date] : @floatval($billableEntries[$date]));
+      $assembledEntries["non-billable"][$date]  = ($date == "statistics" ? $nonBillableEntries[$date] : @floatval($nonBillableEntries[$date])); 
+    }
+    
+    return $assembledEntries;
+  }  
+  
+  
 }
