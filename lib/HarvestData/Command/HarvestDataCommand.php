@@ -157,7 +157,7 @@ abstract class HarvestDataCommand extends \Symfony\Component\Console\Command\Com
   }
 
   protected function getChartPeriod(InputInterface $input, $fallback = "day") {
-    $$period = $input->getOption('chart-period');
+    $period = $input->getOption('chart-period');
 
     if(empty($period)) {
       $period = $fallback;
