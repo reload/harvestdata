@@ -15,7 +15,7 @@ class FetchBillable extends HarvestDataCommand {
 		$this
 		->setName('HarvestData:FetchBillable')
 		->setAliases(array('billable', 'FetchBillable'))
-		->setDescription('Fetch and store data from Harvest');
+		->setDescription('Fetch and store data from Harvest. Chart-types "geekometer" and "line" are eligible.');
 		
   	$this->setChartTypes(array("geekometer","line"));
   	$this->setChartPeriods(array("day","week","year"));

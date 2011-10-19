@@ -20,13 +20,13 @@ abstract class HarvestDataCommand extends \Symfony\Component\Console\Command\Com
 	private $chartPeriods = null;
 
 	protected function configure() {
-		$this->addOption('harvest-project', 'p', InputOption::VALUE_OPTIONAL, 'One or more Harvest projects (id, name or code) separated by , (comma). Use "all" for all projects or "active" for the active ones.', NULL);
-		$this->addOption('date-to', 'dt', InputOption::VALUE_OPTIONAL, 'Date from in YYYYMMDD format. Date is inclusive. Today is default.', NULL);
-		$this->addOption('date-from', 'df', InputOption::VALUE_OPTIONAL, 'Date from in YYYYMMDD format. Date is inclusive. DaysBack from config is default.', NULL);
-		$this->addOption('days-back', 'db', InputOption::VALUE_OPTIONAL, 'Overwrite the config setting. Calculate the from-date by X daysback subtracted from to-date. DEPRECATED.', NULL);
+		$this->addOption('harvest-project', NULL, InputOption::VALUE_OPTIONAL, 'One or more Harvest projects (id, name or code) separated by , (comma). Use "all" for all projects or "active" for the active ones.', NULL);
+		$this->addOption('date-to', 'e', InputOption::VALUE_OPTIONAL, 'Date from in YYYYMMDD format. Date is inclusive. Today is default.', NULL);
+		$this->addOption('date-from', 's', InputOption::VALUE_OPTIONAL, 'Date from in YYYYMMDD format. Date is inclusive. DaysBack from config is default.', NULL);
+		$this->addOption('days-back', 'b', InputOption::VALUE_OPTIONAL, 'Overwrite the config setting. Calculate the from-date by X daysback subtracted from to-date. DEPRECATED.', NULL);
 		$this->addOption('output-file', 'f', InputOption::VALUE_OPTIONAL, 'Output filename. Will default to a datetime-stamp.', NULL);
-		$this->addOption('chart-type', 'ct', InputOption::VALUE_OPTIONAL, 'Chart-type when outputting data. Only usable for FetchBillable and FetchData. See their descriptions for possible values.', NULL);
-		$this->addOption('chart-period', 'cp', InputOption::VALUE_OPTIONAL, 'Chart period when outputting data. Only usable for FetchBillable and FetchData. E.g.: day, week or month', NULL);
+		$this->addOption('chart-type', 'c', InputOption::VALUE_OPTIONAL, 'Chart-type when outputting data. Only usable for FetchBillable and FetchData. See their descriptions for possible values.', NULL);
+		$this->addOption('chart-period', 'p', InputOption::VALUE_OPTIONAL, 'Chart period when outputting data. Only usable for FetchBillable and FetchData. E.g.: day, week or month', NULL);
 		$this->addOption('config', NULL, InputOption::VALUE_OPTIONAL, 'Path to the configuration file', 'config.yml');
 	}
 
