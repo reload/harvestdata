@@ -18,7 +18,7 @@ class FetchData extends HarvestDataCommand {
 		->setDescription('Fetch and store data from Harvest based on userdata. Chart-types "singlecolumn", "stackedcolumn" and "piechart" are eligible.');
 		
 		$this->setChartTypes(array("singlecolumn","stackedcolumn","piechart"));
-		$this->setChartPeriods(array("day","week","year"));	
+		$this->setChartPeriods(array("day","week","month"));	
 			
 		parent::configure();
 	}
