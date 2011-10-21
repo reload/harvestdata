@@ -93,32 +93,29 @@ class GeckoChart {
 
     return $formattedHourValues;
   }
-  
-  /**
-   * Returns commaseperated string for use in the chart
-   *
-   * @param float $average Float average number
-   * @param integer $repeat number of repeats
-   * @return string
-   */
-  protected function makeAveragePrPeriodString($average, $repeat) {
-    // multiplying the average value to match the number of entries on the xAxis
-    for ($i=0; $i < $repeat; $i++) { 
-      $avg[] = $average;
-    }
-    return implode(",", $avg);
-  }
-  
+
   public static function makeSingleColumn($sortedTicketEntries, $chartPeriod) {
 
       $highchart = "
       {
         chart: {
-           renderTo: 'container',
-           defaultSeriesType: 'column'
+          renderTo: 'container',
+          defaultSeriesType: 'column',
+          backgroundColor: null,
+          plotBackgroundColor: null,
+          plotBorderWidth: null,
+          plotShadow: false,
+          spacingBottom: 0,
+          spacingTop: 5
         },
+        credits: {
+             enabled: false
+    	  },
         title: {
-           text: 'Billable hours pr. %s'
+           text: 'Billable hours pr. %s (avg: %s)',
+            style: {
+              fontSize: '12px'
+            }
         },
         xAxis: {
            categories: [%s]
@@ -134,11 +131,23 @@ class GeckoChart {
                  fontWeight: 'bold',
                  color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray'
               }
-           }
+           },
+           plotLines: [{
+               color: 'darkgrey',
+               width: 2,
+               value: %s,
+               zIndex: null,
+               label: {
+                   text: '(%s)',
+                   align: 'right',
+                   style: {
+                       color: 'darkgrey'
+                   }
+               }
+           }]           
         },
         legend: {
-           align: 'right',
-           x: -100,
+           align: 'center',
            verticalAlign: 'top',
            y: 20,
            floating: true,
@@ -164,11 +173,8 @@ class GeckoChart {
            }
         },
          series: [{
-           type: 'spline',
-           name: 'Average billable',
-           data: [%s]
-        }, {      
            name: 'Billable',
+           color: '#89A54E',
            data: [%s]
         }]
       }    
@@ -187,6 +193,7 @@ class GeckoChart {
     $xAxisString = implode(",", $xAxis);
     
     /* Format the data according to chartPeriod, eg. if we have a month, then we have to summarize the hours */
+    // TODO: Maybe define rounding options
     $sortedTicketEntries = self::formatValuesToKeys($sortedTicketEntries,$chartPeriod);  
   
     /* Prepare the values for the highchart javascript */
@@ -194,9 +201,8 @@ class GeckoChart {
     
     // calculate the average billable hours for the period
     $averagePerPeriod         = round($statistics["totalhours"]/count($xAxis),1);
-    $averagePerPeriodString   = self::makeAveragePrPeriodString($averagePerPeriod, count($xAxis));
 
-    $response = sprintf($highchart,$chartPeriod,$xAxisString,$averagePerPeriodString,$sortedTicketEntriesString);
+    $response = sprintf($highchart,$chartPeriod,$averagePerPeriod,$xAxisString,$averagePerPeriod,round($averagePerPeriod,0),$sortedTicketEntriesString);
     
     return $response;  
   }
@@ -206,11 +212,23 @@ class GeckoChart {
       $highchart = "
       {
         chart: {
-           renderTo: 'container',
-           defaultSeriesType: 'column'
+          renderTo: 'container',
+          defaultSeriesType: 'column',
+          backgroundColor: null,
+          plotBackgroundColor: null,
+          plotBorderWidth: null,
+          plotShadow: false,
+          spacingBottom: 0,
+          spacingTop: 5
         },
+        credits: {
+             enabled: false
+    	  },
         title: {
-           text: 'Billable hours pr. %s'
+           text: 'Billable hours pr. %s (avg: %s)',
+            style: {
+              fontSize: '12px'
+            }
         },
         xAxis: {
            categories: [%s]
@@ -226,11 +244,23 @@ class GeckoChart {
                  fontWeight: 'bold',
                  color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray'
               }
-           }
+           },
+           plotLines: [{
+               color: 'darkgrey',
+               width: 2,
+               value: %s,
+               zIndex: null,
+               label: {
+                   text: '(%s)',
+                   align: 'right',
+                   style: {
+                       color: 'darkgrey'
+                   }
+               }
+           }]           
         },
         legend: {
-           align: 'right',
-           x: -15,
+           align: 'center',
            verticalAlign: 'top',
            y: 20,
            floating: true,
@@ -255,15 +285,13 @@ class GeckoChart {
               }
            }
         },
-         series: [{ 
-           type: 'spline',
-           name: 'Average billable',
-           data: [%s]
-        }, {
+        series: [{ 
            name: 'Non-billable',
+           color: '#AA4643',
            data: [%s]
         }, {   
            name: 'Billable',
+           color: '#89A54E',
            data: [%s]
         }]
       }    
@@ -296,9 +324,8 @@ class GeckoChart {
     
     // calculate the average billable hours for the period
     $billableAveragePerPeriod = round($billableStatistics["totalhours"]/count($xAxis),1);
-    $billableAverageString    = self::makeAveragePrPeriodString($billableAveragePerPeriod, count($xAxis));
     
-    $response = sprintf($highchart,$chartPeriod,$xAxisString,$billableAverageString,$nonBillableValuesString,$billableValuesString);
+    $response = sprintf($highchart,$chartPeriod,$billableAveragePerPeriod,$xAxisString,$billableAveragePerPeriod,round($billableAveragePerPeriod,0),$nonBillableValuesString,$billableValuesString);
     
     return $response;  
   }  
