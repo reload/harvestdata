@@ -54,7 +54,7 @@ class FetchData extends HarvestDataCommand {
 
       case 'piechart':
         $assembledEntries = $this->fetchAllHoursInPeriod($from_date, $to_date);
-        $chartPeriodTitle = date("F jS",strtotime($from_date)) . " - " . date("F jS",strtotime($to_date));
+        $chartPeriodTitle = date("M. jS",strtotime($from_date)) . " - " . date("M. jS",strtotime($to_date));
         $data = \GeckoChart::makePieChart($assembledEntries, $chartPeriodTitle);
       break;
 

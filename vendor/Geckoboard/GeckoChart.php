@@ -309,18 +309,32 @@ class GeckoChart {
       {
     	chart: {
     		renderTo: 'container',
+    		backgroundColor: null,
     		plotBackgroundColor: null,
     		plotBorderWidth: null,
-    		plotShadow: false
+    		plotShadow: false,
+    		spacingBottom: 0,
+    		spacingTop: 0
     	},
+  	  credits: {
+           enabled: false
+  	  },    	
     	title: {
-    		text: '%s'
+    		text: '%s',
+    		style: {
+    		  fontSize: '10px'
+    		}    		
     	},
     	tooltip: {
     		formatter: function() {
-    			return '<b>'+ this.point.name +'</b>: '+ this.y +' %s';
+    			return '<b>'+ this.point.name +'</b>: '+ this.y +'%s';
     		}
     	},
+    	legend: {
+  			itemWidth: 95,
+  			margin: 5,
+  			width: '100%s'
+		  },
     	plotOptions: {
     		pie: {
     			allowPointSelect: true,
@@ -329,11 +343,13 @@ class GeckoChart {
     				enabled: true,
     				color: '#000000',
     				connectorColor: '#000000',
+    				distance: -25,
     				formatter: function() {
-    					return '<b>'+ this.y +'</b> %s';
+    					return '<b>'+ this.y +'</b>%s';
     				}
     			},
-    			showInLegend: true
+    			showInLegend: true,
+    			size: '100%s'
     		}
     	},
         series: [{
@@ -341,12 +357,19 @@ class GeckoChart {
     		name: 'Billable vs non-billable',
     		data: [
     			{
-    				name: 'Billable hours',    
+    				name: 'Billable',    
     				y: %s,
-    				sliced: true,
-    				selected: true
+    				sliced: false,
+    				selected: false,
+    				color: '#89A54E'
     			},
-    			['Non-billable hours', %s]
+    			{
+    				name: 'Non-billable',    
+    				y: %s,
+    				sliced: false,
+    				selected: false,
+    				color: '#AA4643'    			  
+    			}
     		]
     	}]
     }";
@@ -362,7 +385,7 @@ class GeckoChart {
     $billablePercent        = round($billableTotalHours/$totalHours*100,1);
     $nonBillablePercent     = round($nonBillableTotalHours/$totalHours*100,1);
   
-    $response = sprintf($highchart,$chartPeriodTitle,"%","%",$billablePercent,$nonBillablePercent);
+    $response = sprintf($highchart,$chartPeriodTitle,"%","%","%","%",$billablePercent,$nonBillablePercent);
     
     return $response;  
   }
