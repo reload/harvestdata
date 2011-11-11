@@ -79,7 +79,7 @@ class GeckoChart {
     return $keys;
   }
   
-  public function formatValuesToKeys($hourValues,$chartPeriod) {
+  public function formatValuesToKeys($hourValues, $chartPeriod, $round = null) {
     $formattedHourValues = array();
 
     $dateFormat = self::getChartPeriodAsDateFormat($chartPeriod);
@@ -89,6 +89,13 @@ class GeckoChart {
         $formattedHourValues[$keyTime] = 0;
       }
       $formattedHourValues[$keyTime] += $hours;
+    }
+    
+    if(is_integer($round))
+    {
+      foreach ($formattedHourValues as $key => &$value) {
+        $value = round($value,$round);
+      }
     }
 
     return $formattedHourValues;
@@ -193,8 +200,7 @@ class GeckoChart {
     $xAxisString = implode(",", $xAxis);
     
     /* Format the data according to chartPeriod, eg. if we have a month, then we have to summarize the hours */
-    // TODO: Maybe define rounding options
-    $sortedTicketEntries = self::formatValuesToKeys($sortedTicketEntries,$chartPeriod);  
+    $sortedTicketEntries = self::formatValuesToKeys($sortedTicketEntries,$chartPeriod, 0);  
   
     /* Prepare the values for the highchart javascript */
     $sortedTicketEntriesString = implode(",", $sortedTicketEntries);
@@ -315,8 +321,8 @@ class GeckoChart {
     $xAxisString = implode(",", $xAxis);
     
     /* Format the data according to chartPeriod, eg. if we have a month, then we have to summarize the hours */
-    $billableHours            = self::formatValuesToKeys($billableHours,$chartPeriod);
-    $nonBillableHours         = self::formatValuesToKeys($nonBillableHours,$chartPeriod);
+    $billableHours            = self::formatValuesToKeys($billableHours,$chartPeriod,0);
+    $nonBillableHours         = self::formatValuesToKeys($nonBillableHours,$chartPeriod,0);
     
     /* Prepare the values for the highchart javascript */
     $billableValuesString     = implode(",", $billableHours);
