@@ -71,8 +71,8 @@ class ComparePeriods extends HarvestDataCommand {
         // prepare the response!
         $geckoresponse = new \GeckoResponse();
         $data['type'] = "standard";
-        $data['item'][] = array('value' => $currentPeriodEntries["statistics"]["totalhours"], 'text' => 'hours');
-        $data['item'][] = array('value' => $prevPeriodEntries["statistics"]["totalhours"], 'text' => '');   
+        $data['item'][] = array('value' => round($currentPeriodEntries["statistics"]["totalhours"],0), 'text' => 'hours');
+        $data['item'][] = array('value' => round($prevPeriodEntries["statistics"]["totalhours"],0), 'text' => '');   
         $data = $geckoresponse->getResponse($data, true);        
 
       break;
