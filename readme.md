@@ -91,3 +91,16 @@ And a couple of more examples. Note the chart-period and the clever date values:
 
 <code>./harvestdata data --date-from="first day of january" --date-to="last day of last month" --chart-type=singlecolumn --chart-period=month --output-file=year-single.js</code>
 
+### Compare Periods 
+**_Compare billable hours between the assigned period and the same number of days before_**
+
+Supported chart-type methods:
+
+- **numberstat** ([built-in Geckoboard widget](http://support.geckoboard.com/entries/231507-custom-widget-type-definitions))
+
+
+#### Examples:
+Compare billable hours from yesterday with billable hours the previous day (two days ago):
+ 
+<code>./harvestdata compare --date-from="yesterday" --date-to="yesterday"</code>
+
