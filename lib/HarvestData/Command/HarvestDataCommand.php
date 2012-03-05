@@ -34,6 +34,7 @@ abstract class HarvestDataCommand extends \Symfony\Component\Console\Command\Com
 		$this->addOption('output-file', 'f', InputOption::VALUE_OPTIONAL, 'Output filename. Will default to a datetime-stamp.', NULL);
 		$this->addOption('chart-type', 'c', InputOption::VALUE_OPTIONAL, 'Chart-type when outputting data. Only usable for FetchBillable and FetchData. See their descriptions for possible values.', NULL);
 		$this->addOption('chart-period', 'p', InputOption::VALUE_OPTIONAL, 'Chart period when outputting data. Only usable for FetchBillable and FetchData. E.g.: day, week or month', NULL);
+		$this->addOption('exclude-contractors', 'x', InputOption::VALUE_OPTIONAL, 'Exclude contractors hours from the retrieved dataset. Default is true. Boolean value required.', NULL);		
 		$this->addOption('config', NULL, InputOption::VALUE_OPTIONAL, 'Path to the configuration file', 'config.yml');
 	}
 
@@ -55,12 +56,62 @@ abstract class HarvestDataCommand extends \Symfony\Component\Console\Command\Com
 		return $this->harvestConfig['projects'];
 	}
 	
+	private function getBudget() {
+	  return $this->budgetConfig;
+	}
+
+  /**
+  * (
+  *     [employee] => Array
+  *         (
+  *             [2012] => Array
+  *                 (
+  *                     [jan] => 828
+  *                     [feb] => 759
+  *                     [mar] => 671
+  *                     [apr] => 614
+  *                     [may] => 831
+  *                     [jun] => 906
+  *                     [jul] => 853
+  *                     [aug] => 648
+  *                     [sep] => 798
+  *                     [oct] => 1115
+  *                     [nov] => 1089
+  *                     [dec] => 923
+  *                 )
+  *
+  *         )
+  *
+  * )
+  */
+  protected function getBudgetByPeriod($year, $month, $type="employee") {
+    $budget = 0;
+    $month = strtolower($month);
+
+    if(isset($this->budgetConfig[$type][$year][$month])) {
+      $budget = intval($this->budgetConfig[$type][$year][$month]);
+    }
+
+    return $budget;
+  }
+
+  protected function getHarvestExcludeContractors() {
+    $ec = $this->input->getOption('exclude-contractors');
+
+    if(isset($ec) && ($ec == true || $ec == false)) {
+      return $ec;
+    }
+    else {
+      return $this->harvestConfig['exclude_contractors'];
+    }
+  }
+
 	/**
 	 * Number of days back compared to today to look for harvestentries
 	 * @return Integer Number of days
 	 */
-	protected function getHarvestDaysBack(InputInterface $input, $fallback = null) {
-	  $db = $input->getOption('days-back');
+	protected function getHarvestDaysBack($fallback = null) {
+	  $db = $this->input->getOption('days-back');
 
 	  if(isset($db) && is_numeric($db) && $db >= 0) {
 	    return $db;
@@ -79,9 +130,9 @@ abstract class HarvestDataCommand extends \Symfony\Component\Console\Command\Com
 	 * The from-date in YYYYMMDD format
 	 * @return Integer Fromdate
 	 */
-	protected function getHarvestFromDate(InputInterface $input, $returnFormat = "Ymd", $fallback = null) {
-	  $from = $input->getOption('date-from');
-	  $db   = $input->getOption('days-back');
+	protected function getHarvestFromDate($returnFormat = "Ymd", $fallback = null) {
+	  $from = $this->input->getOption('date-from');
+	  $db   = $this->input->getOption('days-back');
 	  
 	  if(!empty($from) && !empty($db)) {
 	    throw new \Exception('You cannot specify "date-from" and "days-back" at the same time');
@@ -89,7 +140,7 @@ abstract class HarvestDataCommand extends \Symfony\Component\Console\Command\Com
 	  
 	  if(empty($from)) {
 	    if(is_null($fallback)) {
-	      $from = date($returnFormat,strtotime($this->getHarvestToDate($input))-(86400*$this->getHarvestDaysBack($input)));
+	      $from = date($returnFormat,strtotime($this->getHarvestToDate())-(86400*$this->getHarvestDaysBack()));
 	    }
 	    else
 	    {
@@ -109,8 +160,8 @@ abstract class HarvestDataCommand extends \Symfony\Component\Console\Command\Com
 	 * @return Integer Fromdate
 	 * @TODO add formatter parameter
 	 */
-	protected function getHarvestToDate(InputInterface $input, $returnFormat = "Ymd", $fallback = null) {
-	  $to = $input->getOption('date-to');
+	protected function getHarvestToDate($returnFormat = "Ymd", $fallback = null) {
+	  $to = $this->input->getOption('date-to');
 	  
 	  if(empty($to)) {
 	    if(is_null($fallback)) {
@@ -143,8 +194,8 @@ abstract class HarvestDataCommand extends \Symfony\Component\Console\Command\Com
     $this->chartPeriods = $data;
   }
   
-  protected function getChartType(InputInterface $input, $fallback = "stackedcolumn") {
-    $chart = $input->getOption('chart-type');
+  protected function getChartType($fallback = "stackedcolumn") {
+    $chart = $this->input->getOption('chart-type');
 
     if(empty($chart)) {
       $chart = $fallback;
@@ -163,8 +214,8 @@ abstract class HarvestDataCommand extends \Symfony\Component\Console\Command\Com
     } 
   }
 
-  protected function getChartPeriod(InputInterface $input, $fallback = "day") {
-    $period = $input->getOption('chart-period');
+  protected function getChartPeriod($fallback = "day") {
+    $period = $this->input->getOption('chart-period');
 
     if(empty($period)) {
       $period = $fallback;
@@ -194,7 +245,10 @@ abstract class HarvestDataCommand extends \Symfony\Component\Console\Command\Com
 		$configFile = $input->getOption('config');
 		if (file_exists($configFile)) {
 			$config = Yaml::load($configFile);
-			$this->harvestConfig = $config['harvest'];
+			$this->harvestConfig  = $config['harvest'];
+			$this->settingsConfig = $config['settings'];
+			$this->budgetConfig   = $config['budget'];
+			$this->input = $input;
 		} else {
 			throw new \Exception(sprintf('Missing configuration file %s', $configFile));
 		}
@@ -203,11 +257,10 @@ abstract class HarvestDataCommand extends \Symfony\Component\Console\Command\Com
 	/**
 	 * Returns the project ids for this command from command line options or configuration.
 	 * 
-	 * @param InputInterface $input
 	 * @return array An array of project identifiers
 	 */
-	protected function getProjectIds(InputInterface $input) {
-		$projectIds = ($project = $input->getOption('harvest-project')) ? $project : $this->getHarvestProjects();
+	protected function getProjectIds() {
+		$projectIds = ($project = $this->input->getOption('harvest-project')) ? $project : $this->getHarvestProjects();
 		if (!is_array($projectIds)) {
 			$projectIds = explode(',', $projectIds);
 			array_walk($projectIds, 'trim');
@@ -290,8 +343,18 @@ abstract class HarvestDataCommand extends \Symfony\Component\Console\Command\Com
 		$result = $harvest->getUsers();
 		$harvestUsers = ($result->isSuccess()) ? $result->get('data') : array();
 
-    $this->harvestUsers = $harvestUsers;
+    if($this->getHarvestExcludeContractors() == true) {
+      // lets remove the contractors from the user array
 
+      foreach ($harvestUsers as $userid => $Harvest_User) {
+        if($Harvest_User->get('is-contractor') == "true") {
+          unset($harvestUsers[$userid]);
+        }
+      }
+    }
+
+    $this->harvestUsers = $harvestUsers;
+    
     // Array of Harvest_User objects
 		return $harvestUsers;
 
@@ -521,6 +584,22 @@ abstract class HarvestDataCommand extends \Symfony\Component\Console\Command\Com
   
   /**
   * Return semi-formatted hours pr day in period
+  *
+  * Returns something like this:
+  * (
+  *    [2012-02-21] => 44.53
+  *    [2012-02-22] => 59.3
+  *    [2012-02-23] => 52.58
+  *    [2012-02-24] => 41.93
+  *    [2012-02-27] => 31.55
+  *    [2012-02-28] => 49.48
+  *    [statistics] => Array
+  *        (
+  *            [totalhours] => 279.37
+  *            [average] => 46.56
+  *        )
+  *
+  * )
   */
   public function fetchHoursInPeriod($from_date, $to_date, $billable = null, $project_id = null) {
     $ticketEntries = $this->getEntriesByUsers($from_date, $to_date, $billable, $project_id);
@@ -546,20 +625,31 @@ abstract class HarvestDataCommand extends \Symfony\Component\Console\Command\Com
     
     ksort($sortedTicketEntries);
     if($totalHours >= 0 && count($sortedTicketEntries) >= 0) {
-        $averageHoursPerDay = round($totalHours/count($sortedTicketEntries),2);      
+        $averageHoursPerDay = round($totalHours/count($sortedTicketEntries),2);
     }
     else {
       $averageHoursPerDay   = 0;
     }
-    
-    $sortedTicketEntries["statistics"] = array("totalhours" => $totalHours, "average" => $averageHoursPerDay);
-    
+
+    // fetch budget pr. entry
+    $budget = array();
+    $totalBudget = 0;
+    foreach ($sortedTicketEntries as $keyTime => $hours) {
+      $YYYYMMDD = str_replace("-","",$keyTime);
+      $budgetThisDay = $this->getBudgetInPeriod($YYYYMMDD,$YYYYMMDD);
+
+      $budget[$keyTime] = $budgetThisDay;
+      $totalBudget += $budgetThisDay;
+    }
+
+    $sortedTicketEntries["statistics"] = array("totalhours" => $totalHours, "average" => $averageHoursPerDay, "budget" => $budget);
+
     return $sortedTicketEntries;
   }
-  
+
   // TODO: Refactor -- instead for this function refactor for usage with GeckoChart::formatValuesToKeys() 
   public function formatHoursInPeriod($sortedTicketEntries,$chartPeriod) {
-    
+
     $dateFormat = \GeckoChart::getChartPeriodAsDateFormat($chartPeriod);
 
     $formattedTicketEntries = array();
@@ -597,7 +687,86 @@ abstract class HarvestDataCommand extends \Symfony\Component\Console\Command\Com
     }
     
     return $assembledEntries;
-  }  
-  
-  
+  }
+
+  /**
+  * Fetch the number of budgetted billable hours in the period for employees
+  *
+  * @from_date Integer YYYYMMDD format
+  * @to_date Integer YYYYMMDD format
+  */
+  public function getBudgetInPeriod($from_date, $to_date) {
+    // Fetch budget hours from the config file
+    // first we have to determine which months are affected, and then calculate the number of average budgettet hours in the period, ignoring weekends
+    // The tricky thing is when we have a period in days spanning over multiple months, and the budget is defined pr. month
+
+    $budget_period = 0;
+
+    // TODO: Rewrite this to use DateTime objects instead of this string manipulation rubbish...
+
+    // is from and to date in the same month and year?
+    if(substr($from_date,0,6) == substr($to_date,0,6))
+    {
+      // same month!
+
+      // we just (have to) assume that weekdays are the same as workdays. Not allways true...
+      $weekdays_in_period = $this->getWeekdaysInPeriod($from_date, $to_date);
+
+      $first_day_of_month_unix = strtotime("first day of " . date("F", strtotime($from_date)));
+      $last_day_of_month_unix  = strtotime("last day of " . date("F", strtotime($to_date)));
+
+      $first_day_of_month = date("Ymd", $first_day_of_month_unix);
+      $last_day_of_month  = date("Ymd", $last_day_of_month_unix);
+
+//      echo "\nFirst day of month : " . $first_day_of_month;
+//      echo "\nLast day of month : " . $last_day_of_month;
+
+      $weekdays_in_month = $this->getWeekdaysInPeriod($first_day_of_month, $last_day_of_month);
+//      echo "\nNumber of weekdays in the month : " . $weekdays_in_month;
+
+      $budget_month = $this->getBudgetByPeriod(date("Y",$first_day_of_month_unix),date("M", $first_day_of_month_unix));
+
+//    echo "\nBudget for this month: " . $budget_month;
+
+      $budget_period = ($weekdays_in_period / $weekdays_in_month) * $budget_month;
+
+//      echo "\nBudget for this period (".$from_date." - ".$to_date."): " . $budget_period;
+    }
+    else
+    {
+      // TODO: Support all timespans!!
+      // okay, timespan is now bigger than one month, now it gets complicated!
+      // Break the period up in months
+      throw new \Exception('We only support retrieval of budgethours when the timespan in within one month');
+
+    }
+
+    return $budget_period;
+  }
+   
+  /**
+  * Return number of weekdays between two days
+  *
+  * @from_date Integer Ymd format
+  * @to_date Integer Ymd format
+  */
+  public function getWeekdaysInPeriod($from_date,$to_date) {
+
+    $weekdays   = 0;
+    $datetime1  = new \DateTime($from_date);
+    $datetime2  = new \DateTime($to_date);
+
+    $interval   = $datetime1->diff($datetime2);
+    $days       = $interval->days;
+
+    for ($i=0; $i <= $days; $i++) { 
+      if($datetime1->format("w") != 0 && $datetime1->format("w") != 6) { // don't count saturday and sunday
+        $weekdays++;
+      }
+      $datetime1->add(new \DateInterval("P1D"));
+    }
+
+    return $weekdays;
+  }
+
 }

@@ -27,10 +27,10 @@ class FetchBillable extends HarvestDataCommand {
 		$this->loadConfig($input);
 
 	  $ignore_locked  = false;
-	  $from_date      = $this->getHarvestFromDate($input, "Ymd","yesterday");
-	  $to_date        = $this->getHarvestToDate($input, "Ymd", "yesterday");
-    $chartType      = $this->getChartType($input, "geekometer");
-    $chartPeriod    = $this->getChartPeriod($input, "day");	  
+	  $from_date      = $this->getHarvestFromDate("Ymd","yesterday");
+	  $to_date        = $this->getHarvestToDate("Ymd", "yesterday");
+    $chartType      = $this->getChartType("geekometer");
+    $chartPeriod    = $this->getChartPeriod("day");	  
 	  
 /*	  
     $updated_since  = null;  // NULL meeans all projects (and is thereby slow), but it doesnt seem to work correctly if I set the date otherwise
@@ -48,6 +48,7 @@ class FetchBillable extends HarvestDataCommand {
     $output->writeln('FetchBillable executed: ' . date('Ymd H:i:s'));
 		$output->writeln('Verifying projects in Harvest');
 		$output->writeln('Output filename: ' . $outputFilename);
+		if($this->getHarvestExcludeContractors()) $output->writeln('NOTE: Contractors is excluded from the dataset!');
  		$output->writeln(sprintf('Chart type is "%s" and period is "%s"',$chartType,$chartPeriod));		
 		$output->writeln(sprintf("Collecting Harvest entries between %s to %s",$from_date,$to_date));
 

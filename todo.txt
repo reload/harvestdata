@@ -3,10 +3,18 @@ Next release:
 
 Graphs/features:
 - Fetch all billable hours per user in timeframe
-- Billable hours this month vs. goal
+- Billable hours this month vs. goal/budget
+  - Budget on all timeperiods, not just months
+- Refactor methods to use users as basis for calculation
+- Contractor goals?
+- Fetch data for sickness etc? (specific tasks)
+- Refactoring of GeckoChart - templating data in this class is rubbish.
+
 
 Done
 -------------
+- Exclude contractors settings commandline
+
 
 Version 0.3:
 - Billable hours today (speedometer)

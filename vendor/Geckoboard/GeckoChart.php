@@ -213,6 +213,128 @@ class GeckoChart {
     return $response;  
   }
   
+  public static function makeSingleColumnWithSpline($sortedTicketEntries, $chartPeriod) {
+
+      $highchart = "
+      {
+        chart: {
+          renderTo: 'container',
+          defaultSeriesType: 'column',
+          backgroundColor: null,
+          plotBackgroundColor: null,
+          plotBorderWidth: null,
+          plotShadow: false,
+          spacingBottom: 0,
+          spacingTop: 5
+        },
+        credits: {
+             enabled: false
+        },
+        title: {
+           text: 'Billable hours pr. %s vs. budget',
+            style: {
+              fontSize: '12px'
+            }
+        },
+        xAxis: {
+           categories: [%s]
+        },
+        yAxis: {
+           min: 0,
+           title: {
+              text: 'Hours'
+           },
+           stackLabels: {
+              enabled: true,
+              style: {
+                 fontWeight: 'bold',
+                 color: (Highcharts.theme && Highcharts.theme.textColor) || '#111'
+              }
+           },
+           plotLines: [{
+               color: 'darkgrey',
+               width: 2,
+               value: %s,
+               zIndex: null,
+               label: {
+                   text: '(%s)',
+                   align: 'right',
+                   style: {
+                       color: 'darkgrey'
+                   }
+               }
+           }]
+        },
+        legend: {
+           align: 'center',
+           verticalAlign: 'top',
+           y: 20,
+           floating: true,
+           backgroundColor: (Highcharts.theme && Highcharts.theme.legendBackgroundColorSolid) || 'white',
+           borderColor: '#CCC',
+           borderWidth: 1,
+           shadow: false
+        },
+        tooltip: {
+          formatter: function() {
+            var s;
+              s = '' + this.x  +': '+ this.y;
+            return s;
+          }
+        },
+        plotOptions: {
+           column: {
+              stacking: 'normal',
+              dataLabels: {
+                 enabled: false,
+                 color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || '#111'
+              }
+           }
+        },
+         series: [{
+           name: 'Billable',
+           color: '#89A54E',
+           data: [%s]
+         }, {
+           type: 'spline',
+           name: 'Budget',
+           color: '#333',
+           data: [%s]
+         }]
+      }
+      ";
+
+     // we expect the "statistics" element to be the last of the array
+    $statistics = array_pop($sortedTicketEntries);
+
+    // prepare the keys and values for the insertion into the javascript
+    $keys = array_keys($sortedTicketEntries);
+
+    // format the keys to something short and meaningfull
+    $xAxis = self::formatKeysToDate($keys, $chartPeriod);
+
+    array_walk($xAxis, create_function('&$item', '$item = "\'$item\'";'));
+    $xAxisString = implode(",", $xAxis);
+
+    /* Format the data according to chartPeriod, eg. if we have a month, then we have to summarize the hours */
+    $sortedTicketEntries = self::formatValuesToKeys($sortedTicketEntries,$chartPeriod, 0);
+
+    /* Prepare the values for the highchart javascript */
+    $sortedTicketEntriesString = implode(",", $sortedTicketEntries);
+
+    // calculate the average billable hours for the period
+    $averagePerPeriod         = round($statistics["totalhours"]/count($xAxis),1);
+
+    // budget: format values to the period
+    $budgetEntries = self::formatValuesToKeys($statistics["budget"],$chartPeriod, 0);
+    $budgetEntriesString = implode(",", $budgetEntries);
+
+    $response = sprintf($highchart,$chartPeriod,$xAxisString,$averagePerPeriod,round($averagePerPeriod,0),$sortedTicketEntriesString,$budgetEntriesString);
+
+    return $response;
+  }
+
+
   public static function makeStackedColumn($assembledHours, $chartPeriod) {
 
       $highchart = "

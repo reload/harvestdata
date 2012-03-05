@@ -5,3 +5,23 @@ harvest:
   ssl: true
   projects: "alias,name,id,all,active"
   daysback: 0
+  exclude_contractors: true
+settings:
+  # used for geekometers
+  max_billable_hours_per_day: 75
+  min_billable_hours_per_day: 0
+budget: #billable hours in the budget
+  employee:
+    2012:
+      jan: 123
+      feb: 123
+      mar: 123
+      apr: 123
+      may: 123
+      jun: 123
+      jul: 123
+      aug: 123
+      sep: 123
+      oct: 123
+      nov: 123
+      dec: 123

@@ -1,0 +1,12 @@
+./harvestdata entries --output-file=0.xml
+./harvestdata billable --chart-type=geekometer --date-from="last weekday" --date-to="last weekday" --output-file=1.xml
+./harvestdata billable --chart-type=geekometer --date-from="2 weekdays ago" --date-to="2 weekdays ago" --output-file=2.xml
+./harvestdata data --date-from="-8 days" --date-to="yesterday" --chart-type=singlecolumn --output-file=3.js
+./harvestdata data --date-from="first day of 6 months ago" --date-to="last day of last month" --chart-type=stackedcolumn --output-file=4.js
+./harvestdata data --date-from="-5 mondays" --date-to="sunday last week" --chart-type=stackedcolumn --chart-period=week --output-file=5.js
+./harvestdata data --date-from="first day of last month" --date-to="last day of last month" --chart-type=piechart --chart-period=month --output-file=6.js
+./harvestdata data --date-from="first day of this month" --date-to="today" --chart-type=piechart --chart-period=day --output-file=7.js
+./harvestdata data --date-from="6 months ago" --date-to="yesterday" --chart-type=piechart --chart-period=day --output-file=8.js
+./harvestdata compare --date-from="-8 days" --date-to="yesterday" --chart-type=numberstat --output-file=9.xml
+./harvestdata compare --date-from="-31 days" --date-to="yesterday" --chart-type=numberstat --output-file=10.xml
+./harvestdata compare --date-from="first day of this month" --date-to="yesterday" --chart-type=numberstat --output-file=11.xml

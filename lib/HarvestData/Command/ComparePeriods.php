@@ -26,15 +26,16 @@ class ComparePeriods extends HarvestDataCommand {
 	protected function execute(InputInterface $input, OutputInterface $output) {
 		$this->loadConfig($input);
 		
-	  $from_date      = $this->getHarvestFromDate($input, "Ymd","yesterday");
-	  $to_date        = $this->getHarvestToDate($input, "Ymd", "yesterday");
-    $chartType      = $this->getChartType($input, "numberstat");
-    $chartPeriod    = $this->getChartPeriod($input, null);
+	  $from_date      = $this->getHarvestFromDate("Ymd","yesterday");
+	  $to_date        = $this->getHarvestToDate("Ymd", "yesterday");
+    $chartType      = $this->getChartType("numberstat");
+    $chartPeriod    = $this->getChartPeriod(null);
     
     if(!$outputFilename = $input->getOption("output-file")) {
       $outputFilename = 'ComparePeriods-'.$from_date.'-'.$to_date.'.xml';
     }
     
+    if($this->getHarvestExcludeContractors()) $output->writeln('NOTE: Contractors is excluded from the dataset!');
     $output->writeln('ComparePeriods executed: ' . date('Ymd H:i:s'));
  		$output->writeln('Output filename: ' . $outputFilename);
 // 		$output->writeln(sprintf('Chart type is "%s" and period is "%s"',$chartType,$chartPeriod));
