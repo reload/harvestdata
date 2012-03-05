@@ -11,13 +11,20 @@ use Symfony\Component\Console\Command\Command;
 
 abstract class HarvestDataCommand extends \Symfony\Component\Console\Command\Command {
 
+  /* store the input interface (with commandline options) for later convenience */
+  private $input;
+
+  /* data from config.yml */
 	private $harvestConfig;
+	private $settingsConfig;
+	private $budgetConfig;
 	
 	/* singletons for caching data */
-	private $harvestUsers = null;
-	private $harvestTasks = null;
-	private $chartTypes   = null;
-	private $chartPeriods = null;
+	private $harvestUsers     = null;
+	private $harvestTasks     = null;
+	private $harvestProjects  = null;
+	private $chartTypes       = null;
+	private $chartPeriods     = null;
 
 	protected function configure() {
 		$this->addOption('harvest-project', NULL, InputOption::VALUE_OPTIONAL, 'One or more Harvest projects (id, name or code) separated by , (comma). Use "all" for all projects or "active" for the active ones.', NULL);
@@ -315,6 +322,29 @@ abstract class HarvestDataCommand extends \Symfony\Component\Console\Command\Com
 
 	}
 
+  /**
+   * Collect projects from Harvest
+   *
+   */
+  protected function getAllProjects() {
+
+    if(is_array($this->harvestProjects))
+    {
+      return $this->harvestProjects;
+    }
+
+    //Setup Harvest API access
+    $harvest = $this->getHarvestApi();
+
+    //Prepare by getting all projects
+    $result = $harvest->getProjects();
+    $harvestProjects = ($result->isSuccess()) ? $result->get('data') : array();
+
+    $this->harvestProjects = $harvestProjects;
+
+    // Array of Harvest_Projects objects
+    return $harvestProjects;
+  }
 
 
 	/**
@@ -413,12 +443,12 @@ abstract class HarvestDataCommand extends \Symfony\Component\Console\Command\Com
   
 	/**
 	 * Look through the projects array and return a name
-	 * @param Array $projects array of Harvest_Project objects
 	 * @param Integer $projectId 
 	 * @return String Name of the project
-	 */  
-  protected static function getProjectNameById($projects,$projectId) {
+	 */ 
+  protected function getProjectNameById($projectId) {
     $projectName = "Unknown";
+    $projects = $this->getAllProjects();
     foreach ($projects as $project) {
       if($project->get("id") == $projectId) {
         $projectName = $project->get("name");
