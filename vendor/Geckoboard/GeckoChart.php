@@ -130,13 +130,13 @@ class GeckoChart {
         yAxis: {
            min: 0,
            title: {
-              text: 'Total hours'
+              text: 'Hours'
            },
            stackLabels: {
               enabled: true,
               style: {
                  fontWeight: 'bold',
-                 color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray'
+                 color: (Highcharts.theme && Highcharts.theme.textColor) || '#111'
               }
            },
            plotLines: [{
@@ -164,17 +164,17 @@ class GeckoChart {
            shadow: false
         },
         tooltip: {
-           formatter: function() {
-              return '<b>'+ this.x +'</b><br/>'+
-                  this.series.name +': '+ this.y +'<br/>'+
-                  'Total: '+ this.point.stackTotal;
-           }
+          formatter: function() {
+            var s;
+              s = '' + this.x  +': '+ this.y;
+            return s;
+          }
         },
         plotOptions: {
            column: {
               stacking: 'normal',
               dataLabels: {
-                 enabled: true,
+                 enabled: false,
                  color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || '#111'
               }
            }
