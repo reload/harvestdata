@@ -34,6 +34,9 @@ The filename of the output can be defined as well, use the <code>--output-file</
 You can also use the <code>--days-back</code> option, requiring an integer.
 If no dates are set, the system will use todays date and X days back as defined in the config file (that can differ in each Command).
 
+HarvestData will exclude time entries from contractors by default. Change this behaviour by adding the follow parameter:
+<code>--exclude-contractors=false</code> or change it in the config file.
+
 Run <code>./HarvestData</code> from the command line to show all available commands.
 
 HarvestData currently supports three use cases: 
@@ -41,8 +44,10 @@ HarvestData currently supports three use cases:
 ### Fetch Entries
 **_Fetch entries in Harvest_**
 
-As of the current version 0.3 it will be outputted as a Geckoboard [text-widget](http://support.geckoboard.com/entries/231507-custom-widget-type-definitions), so 
+As of the current version 0.3 it will be outputted as a Geckoboard [text-widget](http://support.geckoboard.com/entries/231507-custom-widget-type-definitions)
 
+#### Examples:
+<code>./harvestdata entries --exclude-contractors=false --output-file=today.xml</code>
 
  
 ### Fetch Billable 
