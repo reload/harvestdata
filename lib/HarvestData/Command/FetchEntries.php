@@ -40,7 +40,7 @@ class FetchEntries extends HarvestDataCommand {
     $output->writeln('FetchEntries executed: ' . date('Ymd H:i:s'));
     $output->writeln('Verifying projects in Harvest');
     $output->writeln('Output filename: ' . $outputFilename);
-    if($this->getHarvestExcludeContractors()) $output->writeln('NOTE: Contractors is excluded from the dataset!');
+    if($this->getHarvestExcludeContractors()) $output->writeln('NOTE: Contractors are excluded from the dataset!');
 
     $ticketEntries = $this->getEntriesByUsers($from_date, $to_date);
 

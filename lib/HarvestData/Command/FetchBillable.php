@@ -48,7 +48,7 @@ class FetchBillable extends HarvestDataCommand {
     $output->writeln('FetchBillable executed: ' . date('Ymd H:i:s'));
 		$output->writeln('Verifying projects in Harvest');
 		$output->writeln('Output filename: ' . $outputFilename);
-		if($this->getHarvestExcludeContractors()) $output->writeln('NOTE: Contractors is excluded from the dataset!');
+		if($this->getHarvestExcludeContractors()) $output->writeln('NOTE: Contractors are excluded from the dataset!');
  		$output->writeln(sprintf('Chart type is "%s" and period is "%s"',$chartType,$chartPeriod));		
 		$output->writeln(sprintf("Collecting Harvest entries between %s to %s",$from_date,$to_date));
 
