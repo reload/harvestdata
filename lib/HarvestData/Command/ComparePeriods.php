@@ -17,7 +17,7 @@ class ComparePeriods extends HarvestDataCommand {
 		->setAliases(array('compare', 'ComparePeriods'))
 		->setDescription('Compare data between two periods');
 		
-		$this->setChartTypes(array("numberstat"));
+		$this->setChartTypes(array("numberstat","numberstatbudget"));
 		$this->setChartPeriods(array(null));	
 			
 		parent::configure();
@@ -35,7 +35,7 @@ class ComparePeriods extends HarvestDataCommand {
       $outputFilename = 'ComparePeriods-'.$from_date.'-'.$to_date.'.xml';
     }
     
-    if($this->getHarvestExcludeContractors()) $output->writeln('NOTE: Contractors is excluded from the dataset!');
+    if($this->getHarvestExcludeContractors()) $output->writeln('NOTE: Contractors are excluded from the dataset!');
     $output->writeln('ComparePeriods executed: ' . date('Ymd H:i:s'));
  		$output->writeln('Output filename: ' . $outputFilename);
 // 		$output->writeln(sprintf('Chart type is "%s" and period is "%s"',$chartType,$chartPeriod));
@@ -44,31 +44,28 @@ class ComparePeriods extends HarvestDataCommand {
     $datetime2 = new \DateTime($from_date);
     $interval = $datetime1->diff($datetime2);
 
-
-    //echo "Datetime1: (to) " .  $datetime1->format('Ymd') . "\n";
-    //echo "Datetime2: (from) " .  $datetime2->format('Ymd') . "\n";    
-    //echo "Diff: ". $interval->format('%R%a days') . "\n";
-
+/*
+    echo "Datetime1: (to) " .  $datetime1->format('Ymd') . "\n";
+    echo "Datetime2: (from) " .  $datetime2->format('Ymd') . "\n";    
+    echo "Diff: ". $interval->format('%R%a days') . "\n";
+*/
     // subtract one day as all days are inclusive
-    $prev_from_date = $datetime2->sub(new \DateInterval('P1D'))->format('Ymd');
-    $prev_to_date   = $datetime2->sub($interval)->format('Ymd');
-    
-    //echo "new to date: " . $prev_to_date  . "\n";
-    //echo "new from date: " . $prev_from_date  . "\n";
-
+    $prev_to_date   = $datetime2->sub(new \DateInterval('P1D'))->format('Ymd');
+    $prev_from_date = $datetime2->sub(new \DateInterval($interval->format('P%aD')))->format('Ymd');
+/*
+    echo "new to date: " . $prev_to_date  . "\n";
+    echo "new from date: " . $prev_from_date  . "\n";
+*/
     switch ($chartType) {
       case 'numberstat':
-      
-		    $output->writeln(sprintf("Collecting Harvest entries between %s to %s",$from_date,$to_date));      
+
+        $output->writeln(sprintf("Collecting Harvest entries between %s to %s",$from_date,$to_date));      
         $currentPeriodEntries = $this->fetchBillableHoursInPeriod($from_date, $to_date);
 
         $output->writeln("\n");
-		    $output->writeln(sprintf("Collecting Harvest entries between %s to %s",$prev_from_date,$prev_to_date));
+        $output->writeln(sprintf("Collecting Harvest entries between %s to %s",$prev_from_date,$prev_to_date));
         $prevPeriodEntries = $this->fetchBillableHoursInPeriod($prev_from_date, $prev_to_date);
 
-        //print_r($currentPeriodEntries);
-        //print_r($prevPeriodEntries);
-        
         // prepare the response!
         $geckoresponse = new \GeckoResponse();
         $data['type'] = "standard";
@@ -77,7 +74,31 @@ class ComparePeriods extends HarvestDataCommand {
         $data = $geckoresponse->getResponse($data, true);        
 
       break;
-      
+
+      case 'numberstatbudget':
+
+        $output->writeln(sprintf("Collecting Harvest entries between %s to %s",$from_date,$to_date));      
+        $currentPeriodEntries = $this->fetchBillableHoursInPeriod($from_date, $to_date);
+
+        $output->writeln("\n");
+        $output->writeln(sprintf("Collecting Harvest entries between %s to %s",$prev_from_date,$prev_to_date));
+        $prevPeriodEntries = $this->fetchBillableHoursInPeriod($prev_from_date, $prev_to_date);
+
+   /*
+        print_r($currentPeriodEntries);
+        print_r($prevPeriodEntries);
+        
+        die();
+  */      
+        // prepare the response!
+        $geckoresponse = new \GeckoResponse();
+        $data['type'] = "standard";
+        $data['item'][] = array('value' => round($currentPeriodEntries["statistics"]["totalhours"],0), 'text' => 'hours');
+        $data['item'][] = array('value' => round($prevPeriodEntries["statistics"]["totalhours"],0), 'text' => '');   
+        $data = $geckoresponse->getResponse($data, true);        
+
+      break;
+
       default:
         $output->writeln("ComparePeriods ChartType not recognized -> ".$chartType."");
         return;
