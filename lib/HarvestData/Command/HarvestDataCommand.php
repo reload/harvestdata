@@ -638,11 +638,11 @@ abstract class HarvestDataCommand extends \Symfony\Component\Console\Command\Com
       $YYYYMMDD = str_replace("-","",$keyTime);
       $budgetThisDay = $this->getBudgetInPeriod($YYYYMMDD,$YYYYMMDD);
 
-      $budget[$keyTime] = $budgetThisDay;
+      $budget[$keyTime] = round($budgetThisDay,2);
       $totalBudget += $budgetThisDay;
     }
 
-    $sortedTicketEntries["statistics"] = array("totalhours" => $totalHours, "average" => $averageHoursPerDay, "budget" => $budget);
+    $sortedTicketEntries["statistics"] = array("totalhours" => $totalHours, "average" => $averageHoursPerDay, "budget" => $budget, "totalbudget" => round($totalBudget,2));
 
     return $sortedTicketEntries;
   }

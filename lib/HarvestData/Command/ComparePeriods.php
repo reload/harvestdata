@@ -80,21 +80,11 @@ class ComparePeriods extends HarvestDataCommand {
         $output->writeln(sprintf("Collecting Harvest entries between %s to %s",$from_date,$to_date));      
         $currentPeriodEntries = $this->fetchBillableHoursInPeriod($from_date, $to_date);
 
-        $output->writeln("\n");
-        $output->writeln(sprintf("Collecting Harvest entries between %s to %s",$prev_from_date,$prev_to_date));
-        $prevPeriodEntries = $this->fetchBillableHoursInPeriod($prev_from_date, $prev_to_date);
-
-   /*
-        print_r($currentPeriodEntries);
-        print_r($prevPeriodEntries);
-        
-        die();
-  */      
         // prepare the response!
         $geckoresponse = new \GeckoResponse();
         $data['type'] = "standard";
         $data['item'][] = array('value' => round($currentPeriodEntries["statistics"]["totalhours"],0), 'text' => 'hours');
-        $data['item'][] = array('value' => round($prevPeriodEntries["statistics"]["totalhours"],0), 'text' => '');   
+        $data['item'][] = array('value' => round($currentPeriodEntries["statistics"]["totalbudget"],2), 'text' => '');   
         $data = $geckoresponse->getResponse($data, true);        
 
       break;
