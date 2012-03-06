@@ -49,10 +49,6 @@ class FetchData extends HarvestDataCommand {
 
       // used for displaying budget vs. actual billable hours
       case 'columnspline';
-        if($chartPeriod != "month") {
-          throw new \Exception("Columnsplice current only works with the period 'month'");
-        }
-        
         $sortedTicketEntries = $this->fetchBillableHoursInPeriod($from_date, $to_date);
         $data = \GeckoChart::makeSingleColumnWithSpline($sortedTicketEntries, $chartPeriod);
       break;
