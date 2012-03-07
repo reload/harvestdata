@@ -3,14 +3,15 @@ harvest:
   username: bugyield@mycompany.com
   password: 1234
   ssl: true
-  projects: "alias,name,id,all,active"
+  #projects: "alias,name,id,all,active" # Currently deprecated/unsupported
   daysback: 0
   exclude_contractors: true
 settings:
-  # used for geekometers
-  max_billable_hours_per_day: 75
-  min_billable_hours_per_day: 0
-budget: #billable hours in the budget
+  # used for geekometers - as of v0.4 these values are still hardcoded. Sigh.
+  #max_billable_hours_per_day: 75
+  #min_billable_hours_per_day: 0
+budget: 
+  #billable hours in our budget pr. month
   employee:
     2012:
       jan: 123
