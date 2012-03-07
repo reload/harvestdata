@@ -162,4 +162,4 @@ Compare billable hours from yesterday with billable hours the previous day (two 
 # Developer notes
 At lot of stuff is rather hardcoded right now, quite a bit of the classes are ripe for refactoring. As it works for our usecases it might take a while before we fix this stuff.
 
-Also, take a look at todo.txt and test.txt
+Also, take a look at docs/todo.txt and docs/test.txt
