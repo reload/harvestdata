@@ -2,7 +2,9 @@
 
 HarvestData is a console application which fetches data Harvest and stores it in a file in a format prepared for [Custom Widgets](http://support.geckoboard.com/forums/207979-geckoboard-api) in [Geckoboard](http://geckoboard.com). 
 
-HarvestData currently supports the time tracking system [Harvest](http://harvestapp.com).
+HarvestData currently supports the time tracking system [Harvest](http://harvestapp.com), and, hence the name, it will probably stay that way :-)
+
+HarvestData has been developed by [Reload](http://reload.dk) and the source code can be found on [GitHub](https://github.com/reload/harvestdata).
 
 ## Installation
 
@@ -17,9 +19,9 @@ HarvestData needs to know where and how to access the systems involved. This con
 
 ## Usage
 
-HarvestData works in the context of one or more Harvest projects identified through their id, full name or code. Projects can be specified in the configuration or using the <code>--harvest-project</code> option. "all", "active" or "project-name" can be used. (This will be DEPRECATED, working on an update that uses users as context for data instead. This is already true for FetchData and FetchBillable).
+HarvestData works by looping through all entries made by users (defaulting to employees) and fetching the data for presentation.
 
-Also a time period can be specified using the <code>--date-from</code> and/or <code>--date-to</code> options - use a date in the *YYYYMMDD* format, or use "yesterday" or similar [PHP-parsable dates](http://www.php.net/manual/en/datetime.formats.relative.php) (see examples below).
+A time period can be specified using the <code>--date-from</code> and/or <code>--date-to</code> options - use a date in the *YYYYMMDD* format, or use "yesterday" or similar [PHP-parsable dates](http://www.php.net/manual/en/datetime.formats.relative.php) (see examples below).
 
 For outputting we have a couple of different parameters.
 You can use <code>--chart-type</code> in order to define which kind of chart the data should be outputted as.
@@ -37,14 +39,37 @@ If no dates are set, the system will use todays date and X days back as defined 
 HarvestData will exclude time entries from contractors by default. Change this behaviour by adding the follow parameter:
 <code>--exclude-contractors=false</code> or change it in the config file.
 
-Run <code>./HarvestData</code> from the command line to show all available commands.
+### General commandline options (all are optional)
+
+<code>--date-to</code>: 'Date from in YYYYMMDD format (or anything php parsable). Date is inclusive. Today is default.'
+
+<code>--date-from</code>: 'Date from in YYYYMMDD format (or anything php parsable). Date is inclusive. DaysBack from config is default.'
+
+<code>--output-file</code>: 'Output filename. Will default to a datetime-stamp.'
+		
+<code>--chart-type</code>: 'Chart-type when outputting data. Only usable for FetchBillable and FetchData. See their descriptions for possible values.'
+
+<code>--chart-period</code>: 'Chart period when outputting data. Only usable for FetchBillable and FetchData. E.g.: day, week or month'
+
+<code>--exclude-contractors</code>: 'Exclude contractors hours from the retrieved dataset. Default is true. Boolean value required.'
+
+<code>--config</code>: 'Path to the configuration file. Default is config.yml'
+
+<code>--days-back</code>: 'Overwrite the config setting. Calculate the from-date by X daysback subtracted from to-date. DEPRECATED as of 0.4.'
+
+<code>--harvest-project</code>: 'One or more Harvest projects (id, name or code) separated by , (comma). Use "all" for all projects or "active" for the active ones. DEPRECATED as of 0.4. Might be reintroduced later.'
+
+### Run it
+
+Run <code>./harvestdata</code> from the command line to show all available commands.
 
 HarvestData currently supports three use cases: 
 
 ### Fetch Entries
 **_Fetch entries in Harvest_**
 
-As of the current version 0.3 it will be outputted as a Geckoboard [text-widget](http://support.geckoboard.com/entries/231507-custom-widget-type-definitions)
+As of the current version 0.4 it will be outputted as a Geckoboard [text-widget](http://support.geckoboard.com/entries/231507-custom-widget-type-definitions).
+We use this command for showing the latest 30 Harvest entries from our employees and contractors, displaying them on a status Geckoboard. 
 
 #### Examples:
 <code>./harvestdata entries --exclude-contractors=false --output-file=today.xml</code>
@@ -75,9 +100,10 @@ This is probably the most versatile command.
 
 Supported chart-type methods:
 
-- **singlecolum** ([custom highcharts widget](http://support.geckoboard.com/entries/274940-custom-chart-widget-type-definitions))
-- **stackedcolumn** ([custom highcharts widget](http://support.geckoboard.com/entries/274940-custom-chart-widget-type-definitions))
-- **piechart** ([custom highcharts widget](http://support.geckoboard.com/entries/274940-custom-chart-widget-type-definitions))
+- **singlecolumn** ([custom highcharts widget](http://support.geckoboard.com/entries/274940-custom-chart-widget-type-definitions)) Show a single column chart, often just billable hours
+- **columnspline** ([custom highcharts widget](http://support.geckoboard.com/entries/274940-custom-chart-widget-type-definitions)) Same as singlecolumn, but with a budget spline overlay
+- **stackedcolumn** ([custom highcharts widget](http://support.geckoboard.com/entries/274940-custom-chart-widget-type-definitions)) Shows billable and non-billable bars in a stacked format
+- **piechart** ([custom highcharts widget](http://support.geckoboard.com/entries/274940-custom-chart-widget-type-definitions)) Well, a piechart with billable vs non-billable data
 
 
 #### Examples
@@ -97,11 +123,12 @@ And a couple of more examples. Note the chart-period and the clever date values:
 <code>./harvestdata data --date-from="first day of january" --date-to="last day of last month" --chart-type=singlecolumn --chart-period=month --output-file=year-single.js</code>
 
 ### Compare Periods 
-**_Compare billable hours between the assigned period and the same number of days before_**
+**_Compare billable hours between the assigned period and the same number of days before or the defined budget_**
 
 Supported chart-type methods:
 
-- **numberstat** ([built-in Geckoboard widget](http://support.geckoboard.com/entries/231507-custom-widget-type-definitions))
+- **numberstat** ([built-in Geckoboard widget](http://support.geckoboard.com/entries/231507-custom-widget-type-definitions)) Shows a number and a percentage (difference between the two provided numbers). The main number is billable hours in the defined period, and the percentage is the difference compared to the previous number of days.
+- **numberstatbudget** ([built-in Geckoboard widget](http://support.geckoboard.com/entries/231507-custom-widget-type-definitions)) Will display billable hours in the chosen period compared to the defined budget.
 
 
 #### Examples:
@@ -109,3 +136,7 @@ Compare billable hours from yesterday with billable hours the previous day (two 
  
 <code>./harvestdata compare --date-from="yesterday" --date-to="yesterday"</code>
 
+# Developer notes
+At lot of stuff is rather hardcoded right now, quite a bit of the classes are ripe for refactoring. As it works for our usecases it might take a while before we fix this stuff.
+
+Also, take a look at todo.txt and test.txt

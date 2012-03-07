@@ -10,10 +10,13 @@ Graphs/features:
 - Fetch data for sickness etc? (specific tasks)
 - Refactoring of GeckoChart - templating data in this class is rubbish.
 
+- Remove or reimplement harvest-project parameter (also from config)
+
 
 Done
 -------------
 - Exclude contractors settings commandline
+DEPRECATED: in the context of one or more Harvest projects identified through their id, full name or code. Projects can be specified in the configuration or using the <code>--harvest-project</code> option. "all", "active" or "project-name" can be used. 
 
 
 Version 0.3:
