@@ -78,9 +78,9 @@ HarvestData will exclude time entries from contractors by default. Change this b
 
 <code>--config</code>: 'Path to the configuration file. Default is config.yml'
 
-<code>--days-back</code>: 'Overwrite the config setting. Calculate the from-date by X daysback subtracted from to-date. DEPRECATED as of 0.4.'
+<code>--days-back</code>: 'Overwrite the config setting. Calculate the from-date by X daysback subtracted from to-date. DEPRECATED as of 0.5.'
 
-<code>--harvest-project</code>: 'One or more Harvest projects (id, name or code) separated by , (comma). Use "all" for all projects or "active" for the active ones. DEPRECATED as of 0.4. Might be reintroduced later.'
+<code>--harvest-project</code>: 'One or more Harvest projects (id, name or code) separated by , (comma). Use "all" for all projects or "active" for the active ones. DEPRECATED as of 0.5. Might be reintroduced later.'
 
 ### Run it
 
@@ -91,7 +91,7 @@ HarvestData currently supports three use cases:
 ### Fetch Entries
 **_Fetch entries in Harvest_**
 
-As of the current version 0.4 it will be outputted as a Geckoboard [text-widget](http://support.geckoboard.com/entries/231507-custom-widget-type-definitions).
+As of the current version 0.5 it will be outputted as a Geckoboard [text-widget](http://support.geckoboard.com/entries/231507-custom-widget-type-definitions).
 We use this command for showing the latest 30 Harvest entries from our employees and contractors, displaying them on a status Geckoboard. 
 
 #### Examples:
