@@ -6,6 +6,29 @@ HarvestData currently supports the time tracking system [Harvest](http://harvest
 
 HarvestData has been developed by [Reload](http://reload.dk) and the source code can be found on [GitHub](https://github.com/reload/harvestdata).
 
+## This is how Reloads financial geckoboard looks like
+
+![Financial geckoboard](https://github.com/reload/harvestdata/raw/master/docs/Geckoboard-HarvestData.jpg "Snapshot of Reloads financial Geckoboard")
+
+Quick reference examples:
+
+1. <code>./harvestdata compare --date-from="-8 days" --date-to="yesterday" --chart-type=numberstatbudget --output-file=stat1.xml</code>
+2. <code>./harvestdata data --date-from="-8 days" --date-to="yesterday" --chart-type=piechart --chart-period=day --output-file=piechart2.js</code>
+3. <code>./harvestdata data --date-from="-8 days" --date-to="yesterday" --chart-type=columnspline --output-file=columnspline3.js
+4. Same as 1, just another timespan
+5. Same as 1, just another timespan
+6. Same as 1, just another timespan
+7. <code>./harvestdata data --date-from="-5 mondays" --date-to="sunday last week" --chart-type=columnspline --chart-period=week --output-file=columnspline7.js</code>
+8. <code>./harvestdata billable --chart-type=geekometer --date-from="last weekday" --date-to="last weekday" --output-file=geekometer8.xml</code>
+9. Same as 8, but using "2 weekdays ago" as date-from and date-to
+10. <code>./harvestdata data --date-from="first day of 6 months ago" --date-to="last day of last month" --chart-type=columnspline --chart-period=month --output-file=columnspline10.js</code>
+11. Same as 2, just another timespan
+12. Same as 2, just another timespan
+13. Same as 2, just another timespan
+
+Detailed explanation of the parameters and commands can be found below.
+
+
 ## Installation
 
 Clone the repository on [GitHub](https://github.com/reload/harvestdata).
