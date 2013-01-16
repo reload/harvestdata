@@ -712,8 +712,8 @@ abstract class HarvestDataCommand extends \Symfony\Component\Console\Command\Com
       // we just (have to) assume that weekdays are the same as workdays. Not allways true...
       $weekdays_in_period = $this->getWeekdaysInPeriod($from_date, $to_date);
 
-      $first_day_of_month_unix = strtotime("first day of " . date("F", strtotime($from_date)));
-      $last_day_of_month_unix  = strtotime("last day of " . date("F", strtotime($to_date)));
+      $first_day_of_month_unix = strtotime("first day of " . date("F Y", strtotime($from_date)));
+      $last_day_of_month_unix  = strtotime("last day of " . date("F Y", strtotime($to_date)));
 
       $first_day_of_month = date("Ymd", $first_day_of_month_unix);
       $last_day_of_month  = date("Ymd", $last_day_of_month_unix);
