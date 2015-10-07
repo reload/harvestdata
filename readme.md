@@ -48,7 +48,7 @@ A time period can be specified using the <code>--date-from</code> and/or <code>-
 
 For outputting we have a couple of different parameters.
 You can use <code>--chart-type</code> in order to define which kind of chart the data should be outputted as.
-This is used in conjuction with <code>--chart-period</code> which is used for grouping the data in the chart. Currently the following values are generally supported:
+This is used in conjunction with <code>--chart-period</code> which is used for grouping the data in the chart. Currently the following values are generally supported:
 
 - day
 - week
