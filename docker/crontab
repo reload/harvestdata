@@ -1,0 +1,16 @@
+# HarvestData: cron jobs
+*/10 *   * * * /harvestdata/harvestdata 2>&1 entries --exclude-contractors=false --output-file=today.xml | logger -t harvestdata-cron
+*/15 *   * * * /harvestdata/harvestdata 2>&1 useractivity --exclude-contractors=false --output-file=useractivity.json | logger -t harvestdata-cron
+50   */2 * * * /harvestdata/harvestdata 2>&1 billable --chart-type=geekometer --date-from="last weekday" --date-to="last weekday" --output-file=billableYesterday.xml | logger -t harvestdata-cron
+59   */4 * * * /harvestdata/harvestdata 2>&1 billable --chart-type=geekometer --date-from="2 weekdays ago" --date-to="2 weekdays ago" --output-file=billableTwoDaysAgo.xml | logger -t harvestdata-cron
+20   */6 * * * /harvestdata/harvestdata 2>&1 data --date-from="-8 days" --date-to="yesterday" --chart-type=columnspline --output-file=last-week-columnspline.js | logger -t harvestdata-cron
+20   5   1 * * /harvestdata/harvestdata 2>&1 data --date-from="first day of 6 months ago" --date-to="last day of last month" --chart-type=columnspline --chart-period=month --output-file=last-sixmonths-columnspline.js | logger -t harvestdata-cron
+20   4   * * 1 /harvestdata/harvestdata 2>&1 data --date-from="-5 mondays" --date-to="sunday last week" --chart-type=columnspline --chart-period=week --output-file=last-four-weeks-columnspline.js | logger -t harvestdata-cron
+40   5   1 * * /harvestdata/harvestdata 2>&1 data --date-from="first day of last month" --date-to="last day of last month" --chart-type=piechart --chart-period=day --output-file=last-month-piechart.js | logger -t harvestdata-cron
+50   5   * * * /harvestdata/harvestdata 2>&1 data --date-from="first day of this month" --date-to="today" --chart-type=piechart --chart-period=day --output-file=current-month-piechart.js | logger -t harvestdata-cron
+10   6   * * * /harvestdata/harvestdata 2>&1 data --date-from="6 months ago" --date-to="yesterday" --chart-type=piechart --chart-period=day --output-file=last-sixmonth-piechart.js | logger -t harvestdata-cron
+15   6   * * * /harvestdata/harvestdata 2>&1 data --date-from="-8 days" --date-to="yesterday" --chart-type=piechart --chart-period=day --output-file=last-week-piechart.js | logger -t harvestdata-cron
+35   */6 * * * /harvestdata/harvestdata 2>&1 compare --date-from="-8 days" --date-to="yesterday" --chart-type=numberstatbudget --output-file=last-seven-days-numberstat.xml | logger -t harvestdata-cron
+45   6   * * * /harvestdata/harvestdata 2>&1 compare --date-from="-31 days" --date-to="yesterday" --chart-type=numberstatbudget --output-file=last-thirty-days-numberstat.xml | logger -t harvestdata-cron
+15   */8 * * * /harvestdata/harvestdata 2>&1 compare --date-from="first day of this month" --date-to="yesterday" --chart-type=numberstatbudget --output-file=current-month-numberstatbudget.xml | logger -t harvestdata-cron
+25   7   * * * /harvestdata/harvestdata 2>&1 compare --date-from="first day of january" --date-to="yesterday" --chart-type=numberstatbudget --output-file=this-year-numberstatbudget.xml | logger -t harvestdata-cron
