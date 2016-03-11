@@ -1,0 +1,87 @@
+harvest:
+  account: $account
+  username: $username
+  password: $password
+  ssl: true
+  projects: "active"
+  daysback: 0
+  exclude_contractors: true
+settings:
+  # used for geekometers
+  max_billable_hours_per_day: 100
+  min_billable_hours_per_day: 0
+budget: #billable hours
+  employee:
+    2016:
+      jan: 1160
+      feb: 1228
+      mar: 998
+      apr: 976
+      may: 971
+      jun: 1241
+      jul: 744
+      aug: 1318
+      sep: 1603
+      oct: 1379
+      nov: 1591
+      dec: 1313
+    2015:
+      jan: 1256
+      feb: 1153
+      mar: 1103
+      apr: 806
+      may: 793
+      jun: 1115
+      jul: 650
+      aug: 991
+      sep: 1256
+      oct: 1184
+      nov: 1378
+      dec: 1228
+    2014:
+      jan: 1415
+      feb: 1002
+      mar: 1150
+      apr: 1095
+      may: 1330
+      jun: 1432
+      jul: 1037
+      aug: 1193
+      sep: 1040
+      oct: 1015
+      nov: 1244
+      dec: 1131
+    2013:
+      jan: 1208
+      feb: 1157
+      mar: 952
+      apr: 1074
+      may: 1299
+      jun: 1157
+      jul: 1253
+      aug: 963
+      sep: 963
+      oct: 1291
+      nov: 1207
+      dec: 1142
+    2012:
+      jan: 828
+      feb: 759
+      mar: 671
+      apr: 614
+      may: 831
+      jun: 906
+      jul: 853
+      aug: 648
+      sep: 798
+      oct: 1115
+      nov: 1089
+      dec: 923
+    2011:
+      jun: 608
+      jul: 563
+      aug: 777
+      sep: 860
+      oct: 924
+      nov: 1012
+      dec: 924
