@@ -12,6 +12,19 @@ settings:
   min_billable_hours_per_day: 0
 budget: #billable hours
   employee:
+    2017:
+      jan: 1449
+      feb: 1254
+      mar: 1326
+      apr: 1182
+      may: 1355
+      jun: 1479
+      jul: 1010
+      aug: 1271
+      sep: 1486
+      oct: 1557
+      nov: 1511
+      dec: 1126  
     2016:
       jan: 1160
       feb: 1228
