@@ -8,10 +8,23 @@ harvest:
   exclude_contractors: true
 settings:
   # used for geekometers
-  max_billable_hours_per_day: 100
+  max_billable_hours_per_day: 125
   min_billable_hours_per_day: 0
 budget: #billable hours
   employee:
+    2018:
+      jan: 1173
+      feb: 1341
+      mar: 1249
+      apr: 1224
+      may: 1465
+      jun: 1651
+      jul: 1249
+      aug: 1576
+      sep: 1670
+      oct: 1922
+      nov: 1774
+      dec: 1293 
     2017:
       jan: 1449
       feb: 1254
