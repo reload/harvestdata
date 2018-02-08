@@ -78,8 +78,8 @@ class FetchBillable extends HarvestDataCommand {
 
       $data['item'] = round($billableHours);
       $data['type'] = "standard";
-      $data['min'][] = array('value' => 0, 'text' => '');
-      $data['max'][] = array('value' => 75, 'text' => '');   
+      $data['min'][] = array('value' => 0, 'text' => '');     // TODO Fetch from config.yml
+      $data['max'][] = array('value' => 100, 'text' => '');   // TODO Fetch from config.yml
       
       // fetch data
       $response = $geckoresponse->getResponse($data, true);       
